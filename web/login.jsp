@@ -4,295 +4,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso - Plataforma USIL</title>
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <title>Login - Intranet USIL</title>
     <style>
-        :root {
-            --primary-color: #0c2340; /* Azul USIL */
-            --accent-color: #d1a153;  /* Dorado USIL */
-            --bg-gradient-start: #0f2027;
-            --bg-gradient-mid: #203a43;
-            --bg-gradient-end: #2c5364;
-            --card-bg: rgba(255, 255, 255, 0.08);
-            --card-border: rgba(255, 255, 255, 0.12);
-            --text-color: #ffffff;
-            --text-muted: #cbd5e1;
-            --danger-color: #f87171;
-            --success-color: #4ade80;
-        }
-
-        * {
-            box-sizing: border-box;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', sans-serif;
-        }
-
-        body {
-            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end));
-            background-size: cover;
-            overflow: hidden;
-            position: relative;
+            height: 100vh;
         }
 
-        /* Efectos de fondo flotantes */
-        body::before, body::after {
-            content: "";
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            filter: blur(100px);
-            z-index: 0;
-            opacity: 0.4;
-        }
-
-        body::before {
-            background-color: var(--primary-color);
-            top: 15%;
-            left: 20%;
-        }
-
-        body::after {
-            background-color: var(--accent-color);
-            bottom: 15%;
-            right: 20%;
-        }
-
-        .login-container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 420px;
-            padding: 20px;
-        }
-
-        .login-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-radius: 24px;
-            padding: 40px 30px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        .login-box {
+            background-color: #ffffff;
+            width: 360px;
+            padding: 30px;
+            border: 1px solid #cccccc;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            transform: translateY(0);
-            transition: all 0.3s ease;
         }
 
-        .login-card:hover {
-            box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
-            border-color: rgba(255, 255, 255, 0.2);
+        .logo-placeholder {
+            margin-bottom: 20px;
         }
 
-        .logo-img {
-            max-width: 180px;
+        .logo-placeholder img {
+            max-width: 140px;
             height: auto;
-            margin-bottom: 25px;
-            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.2));
         }
 
-        .login-title {
-            color: var(--text-color);
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            letter-spacing: 0.5px;
+        h2 {
+            color: #0c2340;
+            margin-bottom: 10px;
+            font-size: 22px;
         }
 
-        .login-subtitle {
-            color: var(--text-muted);
+        p.desc {
+            color: #666666;
             font-size: 14px;
-            margin-bottom: 30px;
-            font-weight: 300;
+            margin-bottom: 25px;
         }
 
-        /* Formularios */
         .form-group {
             text-align: left;
-            margin-bottom: 20px;
-            position: relative;
+            margin-bottom: 15px;
         }
 
-        .form-label {
+        label {
             display: block;
-            color: var(--text-muted);
             font-size: 13px;
-            font-weight: 500;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-weight: bold;
+            color: #333333;
+            margin-bottom: 5px;
         }
 
-        .form-input {
+        input[type="text"], input[type="password"] {
             width: 100%;
-            padding: 14px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: var(--text-color);
-            font-size: 15px;
+            padding: 10px;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+
+        input:focus {
             outline: none;
-            transition: all 0.2s ease;
+            border-color: #0c2340;
         }
 
-        .form-input:focus {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(209, 161, 83, 0.2);
-        }
-
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .btn-submit {
+        .btn-login {
+            background-color: #0c2340;
+            color: #ffffff;
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(90deg, var(--primary-color), #1a3a60);
-            border: 1px solid var(--accent-color);
-            border-radius: 12px;
-            color: var(--text-color);
-            font-size: 16px;
-            font-weight: 600;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(12, 35, 64, 0.4);
             margin-top: 10px;
         }
 
-        .btn-submit:hover:not(:disabled) {
-            background: linear-gradient(90deg, #1a3a60, var(--primary-color));
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(209, 161, 83, 0.3);
+        .btn-login:hover {
+            background-color: #16365c;
         }
 
-        .btn-submit:active:not(:disabled) {
-            transform: translateY(0);
-        }
-
-        .btn-submit:disabled {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.3);
+        .btn-login:disabled {
+            background-color: #cccccc;
+            color: #666666;
             cursor: not-allowed;
-            box-shadow: none;
         }
 
-        /* Notificaciones / Mensajes */
-        .alert {
-            border-radius: 12px;
-            padding: 12px 15px;
-            margin-bottom: 20px;
-            font-size: 14px;
+        /* Alertas de error y mensajes */
+        .alert-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
             text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .alert-danger {
-            background: rgba(248, 113, 113, 0.15);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            color: var(--danger-color);
         }
 
         .alert-success {
-            background: rgba(74, 222, 128, 0.15);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            color: var(--success-color);
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: left;
         }
 
-        /* Temporizador */
-        .timer-box {
+        .alert-block {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            font-weight: bold;
             display: none;
-            background: rgba(209, 161, 83, 0.15);
-            border: 1px solid rgba(209, 161, 83, 0.3);
-            color: var(--accent-color);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            font-weight: 500;
-            animation: pulse 2.0s infinite ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <div class="login-card">
-            <!-- Logotipo de la USIL -->
-            <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo USIL" class="logo-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
+    <div class="login-box">
+        <div class="logo-placeholder">
+            <!-- Logo de la USIL con fallback de imagen -->
+            <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo USIL" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
+        </div>
+        
+        <h2>Sistema Académico</h2>
+        <p class="desc">Ingrese su código y contraseña para continuar</p>
+
+        <!-- Mensajes de Error de JSP -->
+        <% if (request.getParameter("error") != null) { %>
+            <div class="alert-error" id="error-alert">
+                <strong>Error:</strong> <%= request.getParameter("error") %>
+            </div>
+        <% } %>
+
+        <!-- Mensajes Informativos de JSP -->
+        <% if (request.getParameter("msg") != null) { %>
+            <div class="alert-success">
+                <%= request.getParameter("msg") %>
+            </div>
+        <% } %>
+
+        <!-- Contenedor del Temporizador de Bloqueo -->
+        <div class="alert-block" id="timer-container">
+            Formulario bloqueado. Espere: <span id="countdown-timer">0</span> segundos.
+        </div>
+
+        <!-- Formulario -->
+        <form action="${pageContext.request.contextPath}/LoginServlet" method="POST" id="login-form">
+            <div class="form-group">
+                <label for="codigo_o_correo">Código de Usuario o Correo:</label>
+                <input type="text" id="codigo_o_correo" name="codigo_o_correo" placeholder="ej: alumno@usil.edu.pe" required>
+            </div>
             
-            <h1 class="login-title">Plataforma Web</h1>
-            <p class="login-subtitle">Ingresa tus credenciales universitarias</p>
-
-            <!-- Mensajes de Alerta -->
-            <% if (request.getParameter("error") != null) { %>
-                <div class="alert alert-danger" id="error-alert">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-                    <span><%= request.getParameter("error") %></span>
-                </div>
-            <% } %>
-
-            <% if (request.getParameter("msg") != null) { %>
-                <div class="alert alert-success">
-                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                    <span><%= request.getParameter("msg") %></span>
-                </div>
-            <% } %>
-
-            <!-- Temporizador de Bloqueo Visual -->
-            <div class="timer-box" id="timer-container">
-                La cuenta está bloqueada. Reintentar en: <span id="countdown-timer">0</span> segundos.
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" name="password" placeholder="Escriba su contraseña" required>
             </div>
 
-            <!-- Formulario de Login -->
-            <form action="${pageContext.request.contextPath}/LoginServlet" method="POST" id="login-form">
-                <div class="form-group">
-                    <label for="codigo_o_correo" class="form-label">Código o Correo</label>
-                    <input type="text" id="codigo_o_correo" name="codigo_o_correo" class="form-input" placeholder="ej: alumno@usil.edu.pe o U2022..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" class="form-label">Contraseña</label>
-                    <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
-                </div>
-
-                <button type="submit" class="btn-submit" id="btn-submit">Iniciar Sesión</button>
-            </form>
-        </div>
+            <button type="submit" class="btn-login" id="btn-submit">Iniciar Sesión</button>
+        </form>
     </div>
 
-    <!-- Script de Bloqueo Dinámico -->
+    <!-- Script de Bloqueo Temporal -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const errorMsg = urlParams.get('error');
             
             if (errorMsg && (errorMsg.includes('bloqueada') || errorMsg.includes('bloqueado'))) {
-                // Intentar extraer el número de segundos usando regex
                 const match = errorMsg.match(/\d+/);
                 if (match) {
                     let seconds = parseInt(match[0], 10);
@@ -302,15 +196,15 @@
                     const timerContainer = document.getElementById('timer-container');
                     const countdownEl = document.getElementById('countdown-timer');
 
-                    // Deshabilitar campos de inmediato
+                    // Deshabilitar campos
                     inputs.forEach(input => input.disabled = true);
                     submitBtn.disabled = true;
 
-                    // Mostrar temporizador
+                    // Mostrar aviso de bloqueo
                     timerContainer.style.display = 'block';
                     countdownEl.innerText = seconds;
 
-                    // Intervalo de cuenta regresiva
+                    // Cuenta regresiva
                     const interval = setInterval(function() {
                         seconds--;
                         countdownEl.innerText = seconds;
@@ -321,14 +215,13 @@
                             inputs.forEach(input => input.disabled = false);
                             submitBtn.disabled = false;
                             
-                            // Reemplazar mensaje por un aviso de listo
-                            timerContainer.className = "alert alert-success";
-                            timerContainer.innerHTML = `
-                                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-                                <span>Bloqueo temporal finalizado. Ya puede intentar ingresar de nuevo.</span>
-                            `;
+                            // Cambiar aviso de bloqueo a éxito
+                            timerContainer.style.backgroundColor = "#d4edda";
+                            timerContainer.style.borderColor = "#c3e6cb";
+                            timerContainer.style.color = "#155724";
+                            timerContainer.innerHTML = "Bloqueo finalizado. Ya puede intentar ingresar de nuevo.";
                             
-                            // Ocultar alerta de error previa
+                            // Ocultar alerta de error antigua
                             const errorAlert = document.getElementById('error-alert');
                             if (errorAlert) errorAlert.style.display = 'none';
                         }
