@@ -66,7 +66,7 @@
 
         /* Contenedor */
         .container {
-            max-width: 1000px;
+            max-width: 1050px;
             margin: 20px auto;
             background-color: #ffffff;
             padding: 20px;
@@ -87,6 +87,7 @@
             border-radius: 4px;
             margin-bottom: 25px;
             font-size: 15px;
+            line-height: 1.5;
         }
 
         /* Cursos y Notas */
@@ -95,16 +96,30 @@
             border-radius: 6px;
             margin-bottom: 20px;
             background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .curso-header {
             background-color: #eef2f7;
             padding: 10px 15px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             border-bottom: 1px solid #cccccc;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+        }
+
+        .curso-info-header {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .bloque-tag {
+            font-size: 11px;
+            color: #666666;
+            font-weight: normal;
         }
 
         .curso-body {
@@ -120,15 +135,16 @@
         }
 
         .notas-section {
-            flex: 2;
+            flex: 2.2;
         }
 
         .materiales-section {
-            flex: 1;
+            flex: 1.2;
             background-color: #fafafa;
             border: 1px solid #eeeeee;
-            padding: 10px;
+            padding: 12px;
             border-radius: 4px;
+            font-size: 13px;
         }
 
         /* Tabla de Notas Básica */
@@ -136,7 +152,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 5px;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         table, th, td {
@@ -166,22 +182,21 @@
         }
 
         /* Materiales */
-        .materiales-list {
-            margin: 0;
-            padding-left: 20px;
-            font-size: 13px;
+        .info-list {
+            margin: 5px 0 0 0;
+            padding-left: 18px;
         }
 
-        .materiales-list li {
+        .info-list li {
             margin-bottom: 6px;
         }
 
-        .materiales-list a {
+        .info-list a {
             color: #0056b3;
             text-decoration: none;
         }
 
-        .materiales-list a:hover {
+        .info-list a:hover {
             text-decoration: underline;
         }
     </style>
@@ -193,8 +208,8 @@
         <h1>USIL - Portal Académico</h1>
         <div class="user-menu">
             <div class="user-details">
-                <strong>Sofía Rossel Mendoza Q.</strong><br>
-                <span>Código: U20221045 | Rol: Alumno</span>
+                <strong><%= usuario.getNombreCompleto() %></strong><br>
+                <span>Código: <%= usuario.getCodigoAlumnoODocente() %> | Correo: <%= usuario.getCodigoOCorreo() %></span>
             </div>
             <a href="${pageContext.request.contextPath}/LogoutServlet" class="btn-salir">Cerrar Sesión</a>
         </div>
@@ -203,12 +218,11 @@
     <!-- Contenido Principal -->
     <div class="container">
         
-        <h2>Ficha de Matrícula y Calificaciones</h2>
+        <h2>Ficha Académica de Calificaciones</h2>
         
         <div class="profile-summary">
-            <strong>Carrera:</strong> Ingeniería de Sistemas de Información | 
-            <strong>Ciclo Académico:</strong> IV Ciclo | 
-            <strong>Semestre:</strong> 2026-1
+            <strong>Alumno:</strong> <%= usuario.getNombreCompleto() %> (<%= usuario.getCodigoAlumnoODocente() %>)<br>
+            <strong>Carrera:</strong> Ingeniería de Sistemas de Información | <strong>Semestre:</strong> (PRE-GRADO) 2026-01
         </div>
 
         <h3>Mis Cursos Matriculados</h3>
@@ -216,7 +230,192 @@
         <!-- Curso 1 -->
         <div class="curso-box">
             <div class="curso-header">
-                <span>Programación Orientada a Objetos II (POO2)</span>
+                <div class="curso-info-header">
+                    <strong>CÁLCULO DE UNA VARIABLE</strong>
+                    <span class="bloque-tag">Bloque: FC-PREIEM02C01 | Docente: BRAVO QUISPE, CARLOS JUAN</span>
+                </div>
+                <span class="aprobado">Promedio: 15.20</span>
+            </div>
+            <div class="curso-body">
+                <div class="notas-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PC1</th>
+                                <th>PC2</th>
+                                <th>PC3</th>
+                                <th>Ex. Parcial</th>
+                                <th>Ex. Final</th>
+                                <th>Prom. Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>14.0</td>
+                                <td>16.0</td>
+                                <td>15.0</td>
+                                <td>15.0</td>
+                                <td>16.0</td>
+                                <td class="aprobado">15.20</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="materiales-section">
+                    <strong>Detalles del Curso:</strong>
+                    <ul class="info-list">
+                        <li><strong>Inasistencia:</strong> 11.25%</li>
+                        <li><strong>Asistencia Zoom:</strong> 27%</li>
+                        <li><strong>Horario:</strong> Martes 13:00 - 14:40 | Viernes 13:00 - 15:50</li>
+                        <li><a href="#">Descargar Sílabo del Curso</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curso 2 -->
+        <div class="curso-box">
+            <div class="curso-header">
+                <div class="curso-info-header">
+                    <strong>ESTADÍSTICA DESCRIPTIVA E INFERENCIA ESTADÍSTICA</strong>
+                    <span class="bloque-tag">Bloque: FC-VIREMP03E01 | Docente: TORRES APONTE, TANIA</span>
+                </div>
+                <span class="aprobado">Promedio: 14.10</span>
+            </div>
+            <div class="curso-body">
+                <div class="notas-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PC1</th>
+                                <th>PC2</th>
+                                <th>PC3</th>
+                                <th>Ex. Parcial</th>
+                                <th>Ex. Final</th>
+                                <th>Prom. Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>13.0</td>
+                                <td>15.0</td>
+                                <td>14.0</td>
+                                <td>13.0</td>
+                                <td>15.0</td>
+                                <td class="aprobado">14.10</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="materiales-section">
+                    <strong>Detalles del Curso:</strong>
+                    <ul class="info-list">
+                        <li><strong>Inasistencia:</strong> 8.75%</li>
+                        <li><strong>Horario:</strong> Miércoles 17:00 - 18:40 | Viernes 15:50 - 18:40</li>
+                        <li><a href="#">Descargar Sílabo del Curso</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curso 3 -->
+        <div class="curso-box">
+            <div class="curso-header">
+                <div class="curso-info-header">
+                    <strong>INTERACCIÓN HUMANO COMPUTADOR</strong>
+                    <span class="bloque-tag">Bloque: FC-PREISF05B01M | Docente: SALAZAR MARIÑOS, LUIS ALBERTO</span>
+                </div>
+                <span class="aprobado">Promedio: 16.70</span>
+            </div>
+            <div class="curso-body">
+                <div class="notas-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PC1</th>
+                                <th>PC2</th>
+                                <th>PC3</th>
+                                <th>Ex. Parcial</th>
+                                <th>Ex. Final</th>
+                                <th>Prom. Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>17.0</td>
+                                <td>16.0</td>
+                                <td>17.0</td>
+                                <td>16.0</td>
+                                <td>17.0</td>
+                                <td class="aprobado">16.70</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="materiales-section">
+                    <strong>Detalles del Curso:</strong>
+                    <ul class="info-list">
+                        <li><strong>Inasistencia:</strong> 2.08%</li>
+                        <li><strong>Horario:</strong> Lunes 13:00 - 14:40 | Jueves 13:00 - 16:40</li>
+                        <li><a href="#">Descargar Sílabo del Curso</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curso 4 -->
+        <div class="curso-box">
+            <div class="curso-header">
+                <div class="curso-info-header">
+                    <strong>MATEMÁTICA DISCRETA</strong>
+                    <span class="bloque-tag">Bloque: FC-PREISF02A01M | Docente: BETETA SALAS, MARISEL ROCIO</span>
+                </div>
+                <span class="desaprobado">Promedio: 10.90</span>
+            </div>
+            <div class="curso-body">
+                <div class="notas-section">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PC1</th>
+                                <th>PC2</th>
+                                <th>PC3</th>
+                                <th>Ex. Parcial</th>
+                                <th>Ex. Final</th>
+                                <th>Prom. Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>11.0</td>
+                                <td>10.0</td>
+                                <td>12.0</td>
+                                <td>09.0</td>
+                                <td>12.0</td>
+                                <td class="desaprobado">10.90</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="materiales-section">
+                    <strong>Detalles del Curso:</strong>
+                    <ul class="info-list">
+                        <li><strong>Inasistencia:</strong> 3.13%</li>
+                        <li><strong>Asistencia Zoom:</strong> 0%</li>
+                        <li><strong>Horario:</strong> Miércoles 07:00 - 10:40</li>
+                        <li><a href="#">Descargar Sílabo del Curso</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Curso 5 -->
+        <div class="curso-box">
+            <div class="curso-header">
+                <div class="curso-info-header">
+                    <strong>PROGRAMACIÓN ORIENTADA A OBJETOS II</strong>
+                    <span class="bloque-tag">Bloque: FC-PREIEM04B01T | Docente: DELGADO ENRIQUEZ, HECTOR ODIN</span>
+                </div>
                 <span class="aprobado">Promedio: 15.60</span>
             </div>
             <div class="curso-body">
@@ -245,93 +444,11 @@
                     </table>
                 </div>
                 <div class="materiales-section">
-                    <strong>Materiales:</strong>
-                    <ul class="materiales-list">
-                        <li><a href="#">Silabo_POO2.pdf</a></li>
-                        <li><a href="#">Semana1_Servlets.ppt</a></li>
-                        <li><a href="#">Proyecto_Lineamientos.pdf</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Curso 2 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <span>Diseño de Base de Datos (BD1)</span>
-                <span class="aprobado">Promedio: 12.90</span>
-            </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>12.0</td>
-                                <td>14.0</td>
-                                <td>15.0</td>
-                                <td>11.0</td>
-                                <td>13.0</td>
-                                <td class="aprobado">12.90</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Materiales:</strong>
-                    <ul class="materiales-list">
-                        <li><a href="#">Silabo_BD1.pdf</a></li>
-                        <li><a href="#">Manual_SQL_Consultas.pdf</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Curso 3 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <span>Cálculo Multivariable (CAL2)</span>
-                <span class="desaprobado">Promedio: 10.40</span>
-            </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>10.0</td>
-                                <td>11.0</td>
-                                <td>12.0</td>
-                                <td>09.0</td>
-                                <td>11.0</td>
-                                <td class="desaprobado">10.40</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Materiales:</strong>
-                    <ul class="materiales-list">
-                        <li><a href="#">Guia_Derivadas_Parciales.pdf</a></li>
-                        <li><a href="#">Guia_Integrales_Dobles.pdf</a></li>
+                    <strong>Detalles del Curso:</strong>
+                    <ul class="info-list">
+                        <li><strong>Inasistencia:</strong> 0.00%</li>
+                        <li><strong>Horario:</strong> Lunes y Jueves 18:00 - 20:40</li>
+                        <li><a href="#">Descargar Sílabo del Curso</a></li>
                     </ul>
                 </div>
             </div>

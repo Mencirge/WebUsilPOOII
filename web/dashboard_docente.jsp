@@ -6,6 +6,29 @@
         response.sendRedirect(request.getContextPath() + "/login.jsp?error=Sesion+no+iniciada");
         return;
     }
+
+    // Lógica dinámica para mostrar el curso y bloque asignado según el profesor logueado
+    String email = usuario.getCodigoOCorreo();
+    String cursoAsignado = "PROGRAMACIÓN ORIENTADA A OBJETOS II";
+    String bloqueAsignado = "FC-PREIEM04B01T";
+    String cicloAsignado = "(PRE-GRADO) 2026-01";
+
+    if (email.contains("carlos.bravo")) {
+        cursoAsignado = "CÁLCULO DE UNA VARIABLE";
+        bloqueAsignado = "FC-PREIEM02C01";
+    } else if (email.contains("tania.torresa")) {
+        cursoAsignado = "ESTADÍSTICA DESCRIPTIVA E INFERENCIA ESTADÍSTICA";
+        bloqueAsignado = "FC-VIREMP03E01";
+    } else if (email.contains("luis.salazarma")) {
+        cursoAsignado = "INTERACCIÓN HUMANO COMPUTADOR";
+        bloqueAsignado = "FC-PREISF05B01M";
+    } else if (email.contains("marisel.beteta")) {
+        cursoAsignado = "MATEMÁTICA DISCRETA";
+        bloqueAsignado = "FC-PREISF02A01M";
+    } else if (email.contains("hector.delgadoe")) {
+        cursoAsignado = "PROGRAMACIÓN ORIENTADA A OBJETOS II";
+        bloqueAsignado = "FC-PREIEM04B01T";
+    }
 %>
 <!DOCTYPE html>
 <html lang="es">
@@ -91,21 +114,11 @@
 
         .panel-busqueda {
             margin-bottom: 20px;
-            padding: 10px;
+            padding: 12px;
             background-color: #fcfcfc;
             border: 1px solid #e0e0e0;
             border-radius: 4px;
-        }
-
-        .panel-busqueda label {
-            font-weight: bold;
-            margin-right: 10px;
-        }
-
-        .panel-busqueda select {
-            padding: 6px;
-            border-radius: 4px;
-            border: 1px solid #cccccc;
+            font-size: 14px;
         }
 
         /* Tabla de Calificaciones */
@@ -226,8 +239,8 @@
         <h1>USIL - Portal Docente</h1>
         <div class="user-menu">
             <div class="user-details">
-                <strong>Juan Carlos Pérez Silva</strong><br>
-                <span>Código: D20210001 | Rol: Docente</span>
+                <strong><%= usuario.getNombreCompleto() %></strong><br>
+                <span>Código: <%= usuario.getCodigoAlumnoODocente() %> | Rol: Docente</span>
             </div>
             <a href="${pageContext.request.contextPath}/LogoutServlet" class="btn-salir">Cerrar Sesión</a>
         </div>
@@ -236,25 +249,23 @@
     <!-- Contenido Principal -->
     <div class="container">
         
-        <h2>Registro de Calificaciones de Alumnos</h2>
+        <h2>Calificaciones y Actas - Período <%= cicloAsignado %></h2>
         
         <div class="instructor-info">
-            <strong>Facultad:</strong> Ingeniería | 
-            <strong>Especialidad:</strong> Ingeniería de Software |
-            <strong>Semestre:</strong> 2026-1
+            <strong>Docente:</strong> <%= usuario.getNombreCompleto() %> | 
+            <strong>Facultad:</strong> Ingeniería |
+            <strong>Correo:</strong> <%= usuario.getCodigoOCorreo() %>
         </div>
 
         <div class="alerta-exito" id="mensaje-exito">
-            <strong>Éxito:</strong> Las calificaciones se guardaron localmente en el servidor.
+            <strong>Éxito:</strong> Las calificaciones para el bloque <strong><%= bloqueAsignado %></strong> se registraron temporalmente.
         </div>
 
-        <!-- Filtro del Curso -->
+        <!-- Filtro del Curso asignado -->
         <div class="panel-busqueda">
-            <label for="curso-select">Seleccione Curso:</label>
-            <select id="curso-select">
-                <option value="POO2">Programación Orientada a Objetos II (POO2 - Secc. A)</option>
-                <option value="BD1">Diseño de Base de Datos (BD1 - Secc. B)</option>
-            </select>
+            <strong>Curso Asignado:</strong> <%= cursoAsignado %> | 
+            <strong>Bloque:</strong> <%= bloqueAsignado %> |
+            <strong>Semestre:</strong> 2026-01
         </div>
 
         <!-- Tabla de Alumnos -->
@@ -271,11 +282,11 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Fila Alumno 1 -->
+                <!-- Fila Alumno 1 (Guillermo Hoyos - Nuevo) -->
                 <tr class="alumno-row" data-id="1">
                     <td>
-                        <span class="txt-alumno">Sofía Rossel Mendoza Quispe</span><br>
-                        <span class="txt-codigo">U20221045</span>
+                        <span class="txt-alumno">Guillermo Hoyos Palomares</span><br>
+                        <span class="txt-codigo">U20231546</span>
                     </td>
                     <td style="text-align: center;"><input type="number" class="grade-input pc1" value="15.0" min="0" max="20" step="0.5"></td>
                     <td style="text-align: center;"><input type="number" class="grade-input pc2" value="16.0" min="0" max="20" step="0.5"></td>
@@ -285,8 +296,36 @@
                     <td class="promedio-celda aprobado" id="prom-1">15.60</td>
                 </tr>
 
-                <!-- Fila Alumno 2 -->
+                <!-- Fila Alumno 2 (Javier Costa - Nuevo) -->
                 <tr class="alumno-row" data-id="2">
+                    <td>
+                        <span class="txt-alumno">Javier Enrique Costa Saravia</span><br>
+                        <span class="txt-codigo">U20212058</span>
+                    </td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="12.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="13.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="14.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="12.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="13.0" min="0" max="20" step="0.5"></td>
+                    <td class="promedio-celda aprobado" id="prom-2">12.80</td>
+                </tr>
+
+                <!-- Fila Alumno 3 (Sofía Rossel - Existente) -->
+                <tr class="alumno-row" data-id="3">
+                    <td>
+                        <span class="txt-alumno">Sofía Rossel Mendoza Quispe</span><br>
+                        <span class="txt-codigo">U20221045</span>
+                    </td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="14.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="15.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="13.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="14.0" min="0" max="20" step="0.5"></td>
+                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="15.0" min="0" max="20" step="0.5"></td>
+                    <td class="promedio-celda aprobado" id="prom-3">14.30</td>
+                </tr>
+
+                <!-- Fila Alumno 4 (Carlos Díaz - Existente) -->
+                <tr class="alumno-row" data-id="4">
                     <td>
                         <span class="txt-alumno">Carlos Alberto Díaz Ruiz</span><br>
                         <span class="txt-codigo">U20212034</span>
@@ -296,35 +335,7 @@
                     <td style="text-align: center;"><input type="number" class="grade-input pc3" value="12.0" min="0" max="20" step="0.5"></td>
                     <td style="text-align: center;"><input type="number" class="grade-input ep" value="8.0" min="0" max="20" step="0.5"></td>
                     <td style="text-align: center;"><input type="number" class="grade-input ef" value="11.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda desaprobado" id="prom-2">10.40</td>
-                </tr>
-
-                <!-- Fila Alumno 3 -->
-                <tr class="alumno-row" data-id="3">
-                    <td>
-                        <span class="txt-alumno">María Fe Ortiz Ramos</span><br>
-                        <span class="txt-codigo">U20231122</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="17.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="18.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="19.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="16.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="18.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda aprobado" id="prom-3">17.60</td>
-                </tr>
-
-                <!-- Fila Alumno 4 -->
-                <tr class="alumno-row" data-id="4">
-                    <td>
-                        <span class="txt-alumno">Diego Armando Flores Solís</span><br>
-                        <span class="txt-codigo">U20221345</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="12.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="13.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="13.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda aprobado" id="prom-4">13.20</td>
+                    <td class="promedio-celda desaprobado" id="prom-4">10.40</td>
                 </tr>
             </tbody>
         </table>

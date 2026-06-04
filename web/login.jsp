@@ -8,7 +8,9 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f6f9;
+            /* Cargar imagen de fondo desde la carpeta imagenes con fallback de color gris */
+            background: #f4f6f9 url('${pageContext.request.contextPath}/imagenes/login_bg.jpg') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             padding: 0;
             display: flex;
@@ -18,12 +20,12 @@
         }
 
         .login-box {
-            background-color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.95); /* Ligeramente transparente para que se note el fondo */
             width: 360px;
             padding: 30px;
             border: 1px solid #cccccc;
             border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
 
@@ -138,7 +140,6 @@
 
     <div class="login-box">
         <div class="logo-placeholder">
-            <!-- Logo de la USIL con fallback de imagen -->
             <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo USIL" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
         </div>
         

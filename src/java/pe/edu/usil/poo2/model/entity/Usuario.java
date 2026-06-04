@@ -7,15 +7,20 @@ public class Usuario {
     private String codigoOCorreo;
     private String password;
     private int rolId;
-    private String rolNombre; // Para simplificar acceso al nombre de rol en el filtro y servlet
-    private String estado;    // "ACTIVO" o "BLOQUEADO"
+    private String rolNombre; 
+    private String estado;    
     private int intentosFallidos;
     private Timestamp bloqueadoHasta;
+    
+    // Nuevos campos para mostrar datos dinámicos de alumnos y docentes
+    private String nombreCompleto;
+    private String codigoAlumnoODocente;
 
     public Usuario() {
     }
 
-    public Usuario(int id, String codigoOCorreo, String password, int rolId, String rolNombre, String estado, int intentosFallidos, Timestamp bloqueadoHasta) {
+    public Usuario(int id, String codigoOCorreo, String password, int rolId, String rolNombre, String estado, 
+                   int intentosFallidos, Timestamp bloqueadoHasta, String nombreCompleto, String codigoAlumnoODocente) {
         this.id = id;
         this.codigoOCorreo = codigoOCorreo;
         this.password = password;
@@ -24,9 +29,10 @@ public class Usuario {
         this.estado = estado;
         this.intentosFallidos = intentosFallidos;
         this.bloqueadoHasta = bloqueadoHasta;
+        this.nombreCompleto = nombreCompleto;
+        this.codigoAlumnoODocente = codigoAlumnoODocente;
     }
 
-    // Método auxiliar para saber si el usuario está bloqueado temporalmente
     public boolean isBloqueado() {
         if (bloqueadoHasta != null) {
             long currentTime = System.currentTimeMillis();
@@ -36,7 +42,6 @@ public class Usuario {
         return "BLOQUEADO".equalsIgnoreCase(estado);
     }
 
-    // Método auxiliar para saber cuántos segundos le quedan al bloqueo
     public long getSegundosRestantesBloqueo() {
         if (bloqueadoHasta != null) {
             long diff = bloqueadoHasta.getTime() - System.currentTimeMillis();
@@ -110,5 +115,21 @@ public class Usuario {
 
     public void setBloqueadoHasta(Timestamp bloqueadoHasta) {
         this.bloqueadoHasta = bloqueadoHasta;
+    }
+
+    public String getNombreCompleto() {
+        return nombreCompleto;
+    }
+
+    public void setNombreCompleto(String nombreCompleto) {
+        this.nombreCompleto = nombreCompleto;
+    }
+
+    public String getCodigoAlumnoODocente() {
+        return codigoAlumnoODocente;
+    }
+
+    public void setCodigoAlumnoODocente(String codigoAlumnoODocente) {
+        this.codigoAlumnoODocente = codigoAlumnoODocente;
     }
 }

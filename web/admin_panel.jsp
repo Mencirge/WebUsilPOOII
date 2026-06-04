@@ -213,7 +213,7 @@
         <div class="metrics-container">
             <div class="metric-card">
                 <div class="metric-title">Usuarios Registrados</div>
-                <div class="metric-value">3</div>
+                <div class="metric-value">11</div>
             </div>
             <div class="metric-card">
                 <div class="metric-title">Esquema de Roles</div>
@@ -232,10 +232,10 @@
             <thead>
                 <tr>
                     <th>Código o Correo</th>
+                    <th>Nombre de Usuario</th>
                     <th>Rol del Sistema</th>
                     <th>Estado de Cuenta</th>
                     <th style="text-align: center;">Intentos Fallidos</th>
-                    <th>Último Bloqueo</th>
                     <th style="text-align: center;">Acciones</th>
                 </tr>
             </thead>
@@ -243,40 +243,60 @@
                 <!-- Fila Admin -->
                 <tr>
                     <td><strong>admin@usil.edu.pe</strong></td>
+                    <td>Administrador de Soporte TI</td>
                     <td><span class="badge badge-admin">ADMIN</span></td>
                     <td><span class="badge badge-activo">Activo</span></td>
                     <td style="text-align: center;">0</td>
-                    <td>--</td>
                     <td style="text-align: center;">--</td>
                 </tr>
 
-                <!-- Fila Docente -->
+                <!-- Fila Docente 1 -->
                 <tr>
-                    <td><strong>docente@usil.edu.pe</strong></td>
+                    <td><strong>carlos.bravo@usil.pe</strong></td>
+                    <td>BRAVO QUISPE, CARLOS JUAN</td>
                     <td><span class="badge badge-docente">DOCENTE</span></td>
                     <td><span class="badge badge-activo">Activo</span></td>
                     <td style="text-align: center;">0</td>
-                    <td>--</td>
                     <td style="text-align: center;">--</td>
                 </tr>
 
-                <!-- Fila Alumno -->
+                <!-- Fila Docente 2 -->
                 <tr>
-                    <td><strong>alumno@usil.edu.pe</strong></td>
+                    <td><strong>hector.delgadoe@usil.pe</strong></td>
+                    <td>DELGADO ENRIQUEZ, HECTOR ODIN</td>
+                    <td><span class="badge badge-docente">DOCENTE</span></td>
+                    <td><span class="badge badge-activo">Activo</span></td>
+                    <td style="text-align: center;">0</td>
+                    <td style="text-align: center;">--</td>
+                </tr>
+
+                <!-- Fila Alumno 1 -->
+                <tr>
+                    <td><strong>guillermo.hoyos@usil.pe</strong></td>
+                    <td>Guillermo Hoyos Palomares</td>
                     <td><span class="badge badge-alumno">ALUMNO</span></td>
                     <td><span class="badge badge-activo">Activo</span></td>
                     <td style="text-align: center;">0</td>
-                    <td>--</td>
+                    <td style="text-align: center;">--</td>
+                </tr>
+
+                <!-- Fila Alumno 2 -->
+                <tr>
+                    <td><strong>javier.costa@usil.pe</strong></td>
+                    <td>Javier Enrique Costa Saravia</td>
+                    <td><span class="badge badge-alumno">ALUMNO</span></td>
+                    <td><span class="badge badge-activo">Activo</span></td>
+                    <td style="text-align: center;">0</td>
                     <td style="text-align: center;">--</td>
                 </tr>
 
                 <!-- Fila Usuario Bloqueado de Prueba -->
                 <tr id="fila-bloqueado">
                     <td><strong>bloqueado_test@usil.edu.pe</strong></td>
+                    <td>Usuario de Prueba Bloqueado</td>
                     <td><span class="badge badge-alumno">ALUMNO</span></td>
                     <td><span class="badge badge-bloqueado" id="estado-usuario">Bloqueado</span></td>
                     <td style="text-align: center;" id="cant-intentos">3</td>
-                    <td id="hora-bloqueo">Hace 2 minutos</td>
                     <td style="text-align: center;">
                         <button type="button" class="btn-desbloquear" id="btn-unlock">Desbloquear</button>
                     </td>
@@ -298,7 +318,6 @@
                     document.getElementById("estado-usuario").className = "badge badge-activo";
                     document.getElementById("estado-usuario").innerText = "Activo";
                     document.getElementById("cant-intentos").innerText = "0";
-                    document.getElementById("hora-bloqueo").innerText = "--";
                     document.getElementById("cant-bloqueados").innerText = "0";
                     
                     // Deshabilitar el botón
