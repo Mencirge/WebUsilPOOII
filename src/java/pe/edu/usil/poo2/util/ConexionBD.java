@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class ConexionBD {
     // Valores de Supabase por defecto para pruebas locales
-    private static final String DEFAULT_HOST = "aws-0-us-east-1.pooler.supabase.com";
+    private static final String DEFAULT_HOST = "aws-1-us-west-2.pooler.supabase.com";
     private static final String DEFAULT_PORT = "6543";
     private static final String DEFAULT_DB = "postgres";
     private static final String DEFAULT_USER = "postgres.ttuoechkyixozbtiiuev";

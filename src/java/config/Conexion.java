@@ -5,7 +5,7 @@ import java.sql.DriverManager;
 
 public class Conexion {
     // Estos datos coinciden con tu base de datos en Supabase (Pooler)
-    private String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require";
+    private String url = "jdbc:postgresql://aws-1-us-west-2.pooler.supabase.com:6543/postgres?sslmode=require";
     private String user = "postgres.ttuoechkyixozbtiiuev";
     private String pass = "bFkRVaBxpKO6Chm1";
     private Connection con;
