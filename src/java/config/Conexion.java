@@ -4,17 +4,17 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class Conexion {
-    // Estos datos deben coincidir con tu base de datos en Render
-    private String url = "jdbc:postgresql://dpg-d8gcronlk1mc73eoetg0-a.ohio-postgres.render.com:5432/bd_universidad_poo2?sslmode=require";
-    private String user = "bd_universidad_poo2_user";
-    private String pass = "D9uNBVOi0OlAMwecUzQhf6RjFbWDQ13F";
+    // Estos datos coinciden con tu base de datos en Supabase (Pooler)
+    private String url = "jdbc:postgresql://aws-0-us-east-1.pooler.supabase.com:6543/postgres?sslmode=require";
+    private String user = "postgres.ttuoechkyixozbtiiuev";
+    private String pass = "bFkRVaBxpKO6Chm1";
     private Connection con;
 
     public Connection getConnection() {
         try {
             Class.forName("org.postgresql.Driver");
             con = DriverManager.getConnection(url, user, pass);
-            System.out.println("Conexión exitosa a Render!");
+            System.out.println("Conexión exitosa a Supabase!");
         } catch (Exception e) {
             System.err.println("Error de conexión: " + e.getMessage());
         }
