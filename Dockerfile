@@ -1,5 +1,8 @@
 FROM tomcat:10.1-jdk17-temurin
 
+# Deshabilitar el puerto de apagado (shutdown port 8005) de Tomcat para evitar advertencias en Render
+RUN sed -i 's/port="8005"/port="-1"/g' /usr/local/tomcat/conf/server.xml
+
 # Remover la aplicación por defecto de Tomcat
 RUN rm -rf /usr/local/tomcat/webapps/ROOT
 
