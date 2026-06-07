@@ -15,6 +15,8 @@ public class Usuario {
     // Nuevos campos para mostrar datos dinámicos de alumnos y docentes
     private String nombreCompleto;
     private String codigoAlumnoODocente;
+    private String correoPersonal;
+    private String telefono;
 
     public Usuario() {
     }
@@ -31,6 +33,30 @@ public class Usuario {
         this.bloqueadoHasta = bloqueadoHasta;
         this.nombreCompleto = nombreCompleto;
         this.codigoAlumnoODocente = codigoAlumnoODocente;
+    }
+
+    public Usuario(int id, String codigoOCorreo, String password, int rolId, String rolNombre, String estado, 
+                   int intentosFallidos, Timestamp bloqueadoHasta, String nombreCompleto, String codigoAlumnoODocente,
+                   String correoPersonal, String telefono) {
+        this(id, codigoOCorreo, password, rolId, rolNombre, estado, intentosFallidos, bloqueadoHasta, nombreCompleto, codigoAlumnoODocente);
+        this.correoPersonal = correoPersonal;
+        this.telefono = telefono;
+    }
+
+    public String getCorreoPersonal() {
+        return correoPersonal;
+    }
+
+    public void setCorreoPersonal(String correoPersonal) {
+        this.correoPersonal = correoPersonal;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
     }
 
     public boolean isBloqueado() {

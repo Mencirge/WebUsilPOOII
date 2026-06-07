@@ -1,85 +1,119 @@
 package pe.edu.usil.poo2.model.dao;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
 import pe.edu.usil.poo2.model.entity.Usuario;
+import pe.edu.usil.poo2.util.ConexionBD;
 
 public class UsuarioDAO {
-    // Lista de usuarios en memoria para simulación local sin necesidad de base de datos
-    private static final List<Usuario> usuarios = new ArrayList<>();
-
-    static {
-        // Roles: 1 = ADMIN, 2 = DOCENTE, 3 = ALUMNO
-        
-        // ADMINISTRADOR
-        usuarios.add(new Usuario(1, "admin@usil.edu.pe", "123456", 1, "ADMIN", "ACTIVO", 0, null, 
-                "Administrador de Soporte TI", "AD001"));
-        
-        // DOCENTES EXISTENTES Y NUEVOS
-        usuarios.add(new Usuario(2, "docente@usil.edu.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "Juan Carlos Pérez Silva", "D20210001"));
-        usuarios.add(new Usuario(5, "carlos.bravo@usil.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "BRAVO QUISPE, CARLOS JUAN", "D20220101"));
-        usuarios.add(new Usuario(6, "tania.torresa@usil.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "TORRES APONTE, TANIA", "D20230202"));
-        usuarios.add(new Usuario(7, "luis.salazarma@epg.usil.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "SALAZAR MARIÑOS, LUIS ALBERTO", "D20210303"));
-        usuarios.add(new Usuario(8, "marisel.beteta@epg.usil.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "BETETA SALAS, MARISEL ROCIO", "D20240404"));
-        usuarios.add(new Usuario(9, "hector.delgadoe@usil.pe", "123456", 2, "DOCENTE", "ACTIVO", 0, null, 
-                "DELGADO ENRIQUEZ, HECTOR ODIN", "D20200505"));
-
-        // ALUMNOS EXISTENTES Y NUEVOS
-        usuarios.add(new Usuario(3, "alumno@usil.edu.pe", "123456", 3, "ALUMNO", "ACTIVO", 0, null, 
-                "Sofía Rossel Mendoza Quispe", "U20221045"));
-        usuarios.add(new Usuario(10, "guillermo.hoyos@usil.pe", "mEMO231546789.", 3, "ALUMNO", "ACTIVO", 0, null, 
-                "Guillermo Hoyos Palomares", "U20231546"));
-        usuarios.add(new Usuario(11, "javier.costa@usil.pe", "123456", 3, "ALUMNO", "ACTIVO", 0, null, 
-                "Javier Enrique Costa Saravia", "U20212058"));
-        
-        // Usuario pre-bloqueado para pruebas
-        usuarios.add(new Usuario(4, "bloqueado_test@usil.edu.pe", "123456", 3, "ALUMNO", "BLOQUEADO", 3, 
-                new Timestamp(System.currentTimeMillis() + 300 * 1000), "Usuario de Prueba Bloqueado", "U20249999"));
-    }
 
     public Usuario obtenerPorCodigoOCorreo(String codigoOCorreo) {
-        if (codigoOCorreo == null) return null;
-        for (Usuario u : usuarios) {
-            if (u.getCodigoOCorreo().equalsIgnoreCase(codigoOCorreo.trim())) {
-                return u; 
+        if (codigoOCorreo == null || codigoOCorreo.trim().isEmpty()) {
+            return null;
+        }
+        String sql = "SELECT u.id, u.codigo_o_correo, u.password, u.rol_id, r.nombre AS rol_nombre, "
+                   + "u.estado, u.intentos_fallidos, u.bloqueado_hasta, "
+                   + "COALESCE(a.nombre || ' ' || a.apellido, d.nombre || ' ' || d.apellido, 'Administrador') AS nombre_completo, "
+                   + "COALESCE(a.codigo_alumno, d.codigo_docente, 'AD001') AS codigo_alumno_o_docente, "
+                   + "u.correo_personal, u.telefono "
+                   + "FROM usuarios u "
+                   + "JOIN roles r ON u.rol_id = r.id "
+                   + "LEFT JOIN alumnos a ON u.id = a.usuario_id "
+                   + "LEFT JOIN docentes d ON u.id = d.usuario_id "
+                   + "WHERE u.codigo_o_correo = ? OR a.codigo_alumno = ? OR d.codigo_docente = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            String val = codigoOCorreo.trim();
+            ps.setString(1, val);
+            ps.setString(2, val);
+            ps.setString(3, val);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Usuario(
+                        rs.getInt("id"),
+                        rs.getString("codigo_o_correo"),
+                        rs.getString("password"),
+                        rs.getInt("rol_id"),
+                        rs.getString("rol_nombre"),
+                        rs.getString("estado"),
+                        rs.getInt("intentos_fallidos"),
+                        rs.getTimestamp("bloqueado_hasta"),
+                        rs.getString("nombre_completo"),
+                        rs.getString("codigo_alumno_o_docente"),
+                        rs.getString("correo_personal"),
+                        rs.getString("telefono")
+                    );
+                }
             }
+        } catch (SQLException e) {
+            System.err.println("Error al obtener usuario de la BD: " + e.getMessage());
         }
         return null;
     }
 
     public void registrarIntentoFallido(int usuarioId, int intentos) {
-        for (Usuario u : usuarios) {
-            if (u.getId() == usuarioId) {
-                u.setIntentosFallidos(intentos);
-                break;
-            }
+        String sql = "UPDATE usuarios SET intentos_fallidos = ? WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, intentos);
+            ps.setInt(2, usuarioId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al registrar intento fallido en la BD: " + e.getMessage());
         }
     }
 
     public void bloquearUsuarioTemporalmente(int usuarioId, int minutos) {
-        for (Usuario u : usuarios) {
-            if (u.getId() == usuarioId) {
-                u.setEstado("BLOQUEADO");
-                u.setBloqueadoHasta(new Timestamp(System.currentTimeMillis() + ((long) minutos * 60 * 1000)));
-                break;
-            }
+        String sql = "UPDATE usuarios SET estado = 'BLOQUEADO', bloqueado_hasta = ? WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            Timestamp bloqueadoHasta = new Timestamp(System.currentTimeMillis() + ((long) minutos * 60 * 1000));
+            ps.setTimestamp(1, bloqueadoHasta);
+            ps.setInt(2, usuarioId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al bloquear usuario en la BD: " + e.getMessage());
         }
     }
 
     public void resetearIntentosFallidos(int usuarioId) {
-        for (Usuario u : usuarios) {
-            if (u.getId() == usuarioId) {
-                u.setIntentosFallidos(0);
-                u.setEstado("ACTIVO");
-                u.setBloqueadoHasta(null);
-                break;
-            }
+        String sql = "UPDATE usuarios SET intentos_fallidos = 0, estado = 'ACTIVO', bloqueado_hasta = NULL WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, usuarioId);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("Error al resetear intentos fallidos en la BD: " + e.getMessage());
+        }
+    }
+
+    public boolean actualizarContacto(int usuarioId, String correoPersonal, String telefono) {
+        String sql = "UPDATE usuarios SET correo_personal = ?, telefono = ? WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, correoPersonal != null ? correoPersonal.trim() : null);
+            ps.setString(2, telefono != null ? telefono.trim() : null);
+            ps.setInt(3, usuarioId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar contacto en la BD: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean cambiarPassword(int usuarioId, String nuevoPassword) {
+        String sql = "UPDATE usuarios SET password = ? WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, nuevoPassword);
+            ps.setInt(2, usuarioId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al cambiar contraseña en la BD: " + e.getMessage());
+            return false;
         }
     }
 }

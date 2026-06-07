@@ -249,12 +249,75 @@
     <!-- Contenido Principal -->
     <div class="container">
         
+        <%
+            String success = request.getParameter("success");
+            String error = request.getParameter("error");
+            if (success != null) {
+        %>
+            <div style="background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                <strong>Éxito:</strong> <%= success %>
+            </div>
+        <%
+            }
+            if (error != null) {
+        %>
+            <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                <strong>Error:</strong> <%= error %>
+            </div>
+        <%
+            }
+        %>
+
         <h2>Calificaciones y Actas - Período <%= cicloAsignado %></h2>
         
-        <div class="instructor-info">
+        <div class="instructor-info" style="position: relative; line-height: 1.6;">
             <strong>Docente:</strong> <%= usuario.getNombreCompleto() %> | 
             <strong>Facultad:</strong> Ingeniería |
-            <strong>Correo:</strong> <%= usuario.getCodigoOCorreo() %>
+            <strong>Correo:</strong> <%= usuario.getCodigoOCorreo() %><br>
+            <strong>Correo Personal:</strong> <%= (usuario.getCorreoPersonal() != null && !usuario.getCorreoPersonal().isEmpty()) ? usuario.getCorreoPersonal() : "<i>No registrado</i>" %> | 
+            <strong>Teléfono:</strong> <%= (usuario.getTelefono() != null && !usuario.getTelefono().isEmpty()) ? usuario.getTelefono() : "<i>No registrado</i>" %>
+            <div style="margin-top: 10px;">
+                <button type="button" onclick="document.getElementById('editProfileForm').style.display='block'; document.getElementById('changePasswordForm').style.display='none';" style="background-color: #0c2340; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold; margin-right: 10px;">Editar Contacto</button>
+                <button type="button" onclick="document.getElementById('changePasswordForm').style.display='block'; document.getElementById('editProfileForm').style.display='none';" style="background-color: #555555; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: bold;">Cambiar Contraseña</button>
+            </div>
+        </div>
+
+        <!-- Formulario Editar Contacto -->
+        <div id="editProfileForm" style="display:none; background-color: #f9f9f9; border: 1px solid #cccccc; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <h4 style="margin-top: 0; color: #0c2340; margin-bottom: 10px;">Editar Datos de Contacto</h4>
+            <form action="${pageContext.request.contextPath}/controller/ActualizarContactoServlet" method="POST">
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 3px;">Correo Personal:</label>
+                    <input type="email" name="correo_personal" value="<%= usuario.getCorreoPersonal() != null ? usuario.getCorreoPersonal() : "" %>" style="width: 100%; max-width: 300px; padding: 6px; border: 1px solid #cccccc; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 3px;">Teléfono Celular / Casa:</label>
+                    <input type="text" name="telefono" value="<%= usuario.getTelefono() != null ? usuario.getTelefono() : "" %>" style="width: 100%; max-width: 300px; padding: 6px; border: 1px solid #cccccc; border-radius: 4px;" required>
+                </div>
+                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">Guardar Cambios</button>
+                <button type="button" onclick="document.getElementById('editProfileForm').style.display='none'" style="background-color: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; margin-left: 5px;">Cancelar</button>
+            </form>
+        </div>
+
+        <!-- Formulario Cambiar Contraseña -->
+        <div id="changePasswordForm" style="display:none; background-color: #f9f9f9; border: 1px solid #cccccc; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+            <h4 style="margin-top: 0; color: #0c2340; margin-bottom: 10px;">Cambiar Contraseña de Acceso</h4>
+            <form action="${pageContext.request.contextPath}/controller/CambiarPasswordServlet" method="POST">
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 3px;">Contraseña Actual:</label>
+                    <input type="password" name="password_actual" style="width: 100%; max-width: 300px; padding: 6px; border: 1px solid #cccccc; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 3px;">Nueva Contraseña:</label>
+                    <input type="password" name="password_nuevo" style="width: 100%; max-width: 300px; padding: 6px; border: 1px solid #cccccc; border-radius: 4px;" required>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label style="display: block; font-weight: bold; font-size: 13px; margin-bottom: 3px;">Confirmar Nueva Contraseña:</label>
+                    <input type="password" name="password_nuevo_confirmar" style="width: 100%; max-width: 300px; padding: 6px; border: 1px solid #cccccc; border-radius: 4px;" required>
+                </div>
+                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px;">Cambiar Contraseña</button>
+                <button type="button" onclick="document.getElementById('changePasswordForm').style.display='none'" style="background-color: #6c757d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; margin-left: 5px;">Cancelar</button>
+            </form>
         </div>
 
         <div class="alerta-exito" id="mensaje-exito">
