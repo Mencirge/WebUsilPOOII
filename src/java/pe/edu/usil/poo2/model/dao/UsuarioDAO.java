@@ -116,4 +116,22 @@ public class UsuarioDAO {
             return false;
         }
     }
+
+    public boolean actualizarNotas(int matriculaId, double pc1, double pc2, double pc3, double ep, double ef, double promedioFinal) {
+        String sql = "UPDATE notas SET pc1 = ?, pc2 = ?, pc3 = ?, examen_parcial = ?, examen_final = ?, promedio_final = ? WHERE matricula_id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setDouble(1, pc1);
+            ps.setDouble(2, pc2);
+            ps.setDouble(3, pc3);
+            ps.setDouble(4, ep);
+            ps.setDouble(5, ef);
+            ps.setDouble(6, promedioFinal);
+            ps.setInt(7, matriculaId);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.err.println("Error al actualizar notas en la BD: " + e.getMessage());
+            return false;
+        }
+    }
 }

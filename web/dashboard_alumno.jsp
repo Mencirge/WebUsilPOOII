@@ -1,10 +1,27 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="pe.edu.usil.poo2.model.entity.Usuario" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="pe.edu.usil.poo2.util.ConexionBD" %>
 <%
     Usuario usuario = (Usuario) session.getAttribute("usuario");
     if (usuario == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp?error=Sesion+no+iniciada");
         return;
+    }
+
+    String carrera = "Ingeniería de Sistemas de Información";
+    int ciclo = 2;
+    try (Connection conn = ConexionBD.getConexion();
+         PreparedStatement ps = conn.prepareStatement("SELECT carrera, ciclo FROM alumnos WHERE usuario_id = ?")) {
+        ps.setInt(1, usuario.getId());
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                carrera = rs.getString("carrera");
+                ciclo = rs.getInt("ciclo");
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Error al obtener carrera/ciclo del alumno: " + e.getMessage());
     }
 %>
 <!DOCTYPE html>
@@ -241,7 +258,7 @@
         
         <div class="profile-summary" style="position: relative;">
             <strong>Alumno:</strong> <%= usuario.getNombreCompleto() %> (<%= usuario.getCodigoAlumnoODocente() %>)<br>
-            <strong>Carrera:</strong> <%= (usuario.getId() <= 3 || usuario.getId() == 4) ? "Ingeniería de Sistemas de Información" : "ING SIST. INFORMACION" %> | <strong>Semestre:</strong> (PRE-GRADO) 2026-01<br>
+            <strong>Carrera:</strong> <%= carrera %> | <strong>Ciclo:</strong> <%= ciclo %>° Ciclo | <strong>Semestre:</strong> (PRE-GRADO) 2026-01<br>
             <strong>Correo Personal:</strong> <%= (usuario.getCorreoPersonal() != null && !usuario.getCorreoPersonal().isEmpty()) ? usuario.getCorreoPersonal() : "<i>No registrado</i>" %> | 
             <strong>Teléfono:</strong> <%= (usuario.getTelefono() != null && !usuario.getTelefono().isEmpty()) ? usuario.getTelefono() : "<i>No registrado</i>" %>
             <div style="margin-top: 10px;">
@@ -290,14 +307,67 @@
 
         <h3>Mis Cursos Matriculados</h3>
 
-        <!-- Curso 1 -->
+        <%
+            try (Connection conn = ConexionBD.getConexion();
+                 PreparedStatement ps = conn.prepareStatement(
+                     "SELECT m.id AS matricula_id, c.codigo AS curso_codigo, c.nombre AS curso_nombre, c.creditos, " +
+                     "COALESCE((SELECT d.nombre || ' ' || d.apellido FROM docentes d WHERE d.especialidad = c.nombre LIMIT 1), 'Sin asignar') AS docente_nombre, " +
+                     "n.pc1, n.pc2, n.pc3, n.examen_parcial, n.examen_final, n.promedio_final " +
+                     "FROM matriculas m " +
+                     "JOIN cursos c ON m.curso_id = c.id " +
+                     "LEFT JOIN notas n ON n.matricula_id = m.id " +
+                     "WHERE m.alumno_id = (SELECT id FROM alumnos WHERE usuario_id = ?) " +
+                     "ORDER BY c.nombre")) {
+                ps.setInt(1, usuario.getId());
+                try (ResultSet rs = ps.executeQuery()) {
+                    boolean tieneCursos = false;
+                    while (rs.next()) {
+                        tieneCursos = true;
+                        String cursoCodigo = rs.getString("curso_codigo");
+                        String cursoNombre = rs.getString("curso_nombre");
+                        int creditos = rs.getInt("creditos");
+                        String docenteNombre = rs.getString("docente_nombre");
+                        double pc1 = rs.getDouble("pc1");
+                        double pc2 = rs.getDouble("pc2");
+                        double pc3 = rs.getDouble("pc3");
+                        double ep = rs.getDouble("examen_parcial");
+                        double ef = rs.getDouble("examen_final");
+                        double pf = rs.getDouble("promedio_final");
+                        
+                        String classPromedio = (pf >= 11.5) ? "aprobado" : "desaprobado";
+                        
+                        String bloque = "FC-PRE" + cursoCodigo + "01";
+                        String inasistencia = "0.00%";
+                        String horario = "Por definir";
+                        if (cursoCodigo.equals("CAL1")) {
+                            bloque = "FC-PREIEM02C01";
+                            inasistencia = "11.25%";
+                            horario = "Martes 13:00 - 14:40 | Viernes 13:00 - 15:50";
+                        } else if (cursoCodigo.equals("EST1")) {
+                            bloque = "FC-VIREMP03E01";
+                            inasistencia = "8.75%";
+                            horario = "Miércoles 17:00 - 18:40 | Viernes 15:50 - 18:40";
+                        } else if (cursoCodigo.equals("IHC")) {
+                            bloque = "FC-PREISF05B01M";
+                            inasistencia = "2.08%";
+                            horario = "Lunes 13:00 - 14:40 | Jueves 13:00 - 16:40";
+                        } else if (cursoCodigo.equals("MD")) {
+                            bloque = "FC-PREISF02A01M";
+                            inasistencia = "3.13%";
+                            horario = "Miércoles 07:00 - 10:40";
+                        } else if (cursoCodigo.equals("POO2")) {
+                            bloque = "FC-PREIEM04B01T";
+                            inasistencia = "0.00%";
+                            horario = "Lunes y Jueves 18:00 - 20:40";
+                        }
+        %>
         <div class="curso-box">
             <div class="curso-header">
                 <div class="curso-info-header">
-                    <strong>CÁLCULO DE UNA VARIABLE</strong>
-                    <span class="bloque-tag">Bloque: FC-PREIEM02C01 | Docente: BRAVO QUISPE, CARLOS JUAN</span>
+                    <strong><%= cursoNombre.toUpperCase() %></strong>
+                    <span class="bloque-tag">Bloque: <%= bloque %> | Créditos: <%= creditos %> | Docente: <%= docenteNombre.toUpperCase() %></span>
                 </div>
-                <span class="aprobado">Promedio: 15.20</span>
+                <span class="<%= classPromedio %>">Promedio: <%= String.format(java.util.Locale.US, "%.2f", pf) %></span>
             </div>
             <div class="curso-body">
                 <div class="notas-section">
@@ -314,12 +384,12 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>14.0</td>
-                                <td>16.0</td>
-                                <td>15.0</td>
-                                <td>15.0</td>
-                                <td>16.0</td>
-                                <td class="aprobado">15.20</td>
+                                <td><%= String.format(java.util.Locale.US, "%.1f", pc1) %></td>
+                                <td><%= String.format(java.util.Locale.US, "%.1f", pc2) %></td>
+                                <td><%= String.format(java.util.Locale.US, "%.1f", pc3) %></td>
+                                <td><%= String.format(java.util.Locale.US, "%.1f", ep) %></td>
+                                <td><%= String.format(java.util.Locale.US, "%.1f", ef) %></td>
+                                <td class="<%= classPromedio %>"><%= String.format(java.util.Locale.US, "%.2f", pf) %></td>
                             </tr>
                         </tbody>
                     </table>
@@ -327,195 +397,31 @@
                 <div class="materiales-section">
                     <strong>Detalles del Curso:</strong>
                     <ul class="info-list">
-                        <li><strong>Inasistencia:</strong> 11.25%</li>
-                        <li><strong>Asistencia Zoom:</strong> 27%</li>
-                        <li><strong>Horario:</strong> Martes 13:00 - 14:40 | Viernes 13:00 - 15:50</li>
+                        <li><strong>Inasistencia:</strong> <%= inasistencia %></li>
+                        <li><strong>Horario:</strong> <%= horario %></li>
                         <li><a href="#">Descargar Sílabo del Curso</a></li>
                     </ul>
                 </div>
             </div>
         </div>
-
-        <!-- Curso 2 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <div class="curso-info-header">
-                    <strong>ESTADÍSTICA DESCRIPTIVA E INFERENCIA ESTADÍSTICA</strong>
-                    <span class="bloque-tag">Bloque: FC-VIREMP03E01 | Docente: TORRES APONTE, TANIA</span>
-                </div>
-                <span class="aprobado">Promedio: 14.10</span>
+        <%
+                    }
+                    if (!tieneCursos) {
+        %>
+            <div style="padding: 20px; text-align: center; color: #666666;">
+                Actualmente no tiene cursos matriculados en este período.
             </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>13.0</td>
-                                <td>15.0</td>
-                                <td>14.0</td>
-                                <td>13.0</td>
-                                <td>15.0</td>
-                                <td class="aprobado">14.10</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Detalles del Curso:</strong>
-                    <ul class="info-list">
-                        <li><strong>Inasistencia:</strong> 8.75%</li>
-                        <li><strong>Horario:</strong> Miércoles 17:00 - 18:40 | Viernes 15:50 - 18:40</li>
-                        <li><a href="#">Descargar Sílabo del Curso</a></li>
-                    </ul>
-                </div>
+        <%
+                    }
+                }
+            } catch (Exception e) {
+        %>
+            <div style="padding: 20px; background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; border-radius: 4px;">
+                <strong>Error al cargar las calificaciones:</strong> <%= e.getMessage() %>
             </div>
-        </div>
-
-        <!-- Curso 3 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <div class="curso-info-header">
-                    <strong>INTERACCIÓN HUMANO COMPUTADOR</strong>
-                    <span class="bloque-tag">Bloque: FC-PREISF05B01M | Docente: SALAZAR MARIÑOS, LUIS ALBERTO</span>
-                </div>
-                <span class="aprobado">Promedio: 16.70</span>
-            </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>17.0</td>
-                                <td>16.0</td>
-                                <td>17.0</td>
-                                <td>16.0</td>
-                                <td>17.0</td>
-                                <td class="aprobado">16.70</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Detalles del Curso:</strong>
-                    <ul class="info-list">
-                        <li><strong>Inasistencia:</strong> 2.08%</li>
-                        <li><strong>Horario:</strong> Lunes 13:00 - 14:40 | Jueves 13:00 - 16:40</li>
-                        <li><a href="#">Descargar Sílabo del Curso</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Curso 4 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <div class="curso-info-header">
-                    <strong>MATEMÁTICA DISCRETA</strong>
-                    <span class="bloque-tag">Bloque: FC-PREISF02A01M | Docente: BETETA SALAS, MARISEL ROCIO</span>
-                </div>
-                <span class="desaprobado">Promedio: 10.90</span>
-            </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>11.0</td>
-                                <td>10.0</td>
-                                <td>12.0</td>
-                                <td>09.0</td>
-                                <td>12.0</td>
-                                <td class="desaprobado">10.90</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Detalles del Curso:</strong>
-                    <ul class="info-list">
-                        <li><strong>Inasistencia:</strong> 3.13%</li>
-                        <li><strong>Asistencia Zoom:</strong> 0%</li>
-                        <li><strong>Horario:</strong> Miércoles 07:00 - 10:40</li>
-                        <li><a href="#">Descargar Sílabo del Curso</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Curso 5 -->
-        <div class="curso-box">
-            <div class="curso-header">
-                <div class="curso-info-header">
-                    <strong>PROGRAMACIÓN ORIENTADA A OBJETOS II</strong>
-                    <span class="bloque-tag">Bloque: FC-PREIEM04B01T | Docente: DELGADO ENRIQUEZ, HECTOR ODIN</span>
-                </div>
-                <span class="aprobado">Promedio: 15.60</span>
-            </div>
-            <div class="curso-body">
-                <div class="notas-section">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>PC1</th>
-                                <th>PC2</th>
-                                <th>PC3</th>
-                                <th>Ex. Parcial</th>
-                                <th>Ex. Final</th>
-                                <th>Prom. Final</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>15.0</td>
-                                <td>16.0</td>
-                                <td>14.0</td>
-                                <td>15.0</td>
-                                <td>17.0</td>
-                                <td class="aprobado">15.60</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="materiales-section">
-                    <strong>Detalles del Curso:</strong>
-                    <ul class="info-list">
-                        <li><strong>Inasistencia:</strong> 0.00%</li>
-                        <li><strong>Horario:</strong> Lunes y Jueves 18:00 - 20:40</li>
-                        <li><a href="#">Descargar Sílabo del Curso</a></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
+        <%
+            }
+        %>
 
     </div>
 

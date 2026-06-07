@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="pe.edu.usil.poo2.model.entity.Usuario" %>
+<%@ page import="java.sql.*" %>
+<%@ page import="pe.edu.usil.poo2.util.ConexionBD" %>
 <%
     Usuario usuario = (Usuario) session.getAttribute("usuario");
     if (usuario == null) {
@@ -7,26 +9,44 @@
         return;
     }
 
-    // Lógica dinámica para mostrar el curso y bloque asignado según el profesor logueado
-    String email = usuario.getCodigoOCorreo();
-    String cursoAsignado = "PROGRAMACIÓN ORIENTADA A OBJETOS II";
-    String bloqueAsignado = "FC-PREIEM04B01T";
+    int cursoId = 0;
+    String cursoCodigo = "";
+    String cursoAsignado = "Ninguno";
+    String bloqueAsignado = "FC-PRE";
     String cicloAsignado = "(PRE-GRADO) 2026-01";
 
-    if (email.contains("carlos.bravo")) {
-        cursoAsignado = "CÁLCULO DE UNA VARIABLE";
+    try (Connection conn = ConexionBD.getConexion();
+         PreparedStatement ps = conn.prepareStatement(
+             "SELECT id, codigo, nombre FROM cursos WHERE nombre = (SELECT especialidad FROM docentes WHERE usuario_id = ?)")) {
+        ps.setInt(1, usuario.getId());
+        try (ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                cursoId = rs.getInt("id");
+                cursoCodigo = rs.getString("codigo");
+                cursoAsignado = rs.getString("nombre");
+            }
+        }
+    } catch (Exception e) {
+        System.err.println("Error al obtener curso asignado al docente: " + e.getMessage());
+    }
+
+    // Fallback por defecto si no coincide especialidad
+    if (cursoId == 0) {
+        cursoId = 5;
+        cursoCodigo = "POO2";
+        cursoAsignado = "Programación Orientada a Objetos II";
+    }
+
+    // Bloque correspondiente para mantener estética
+    if (cursoCodigo.equals("CAL1")) {
         bloqueAsignado = "FC-PREIEM02C01";
-    } else if (email.contains("tania.torresa")) {
-        cursoAsignado = "ESTADÍSTICA DESCRIPTIVA E INFERENCIA ESTADÍSTICA";
+    } else if (cursoCodigo.equals("EST1")) {
         bloqueAsignado = "FC-VIREMP03E01";
-    } else if (email.contains("luis.salazarma")) {
-        cursoAsignado = "INTERACCIÓN HUMANO COMPUTADOR";
+    } else if (cursoCodigo.equals("IHC")) {
         bloqueAsignado = "FC-PREISF05B01M";
-    } else if (email.contains("marisel.beteta")) {
-        cursoAsignado = "MATEMÁTICA DISCRETA";
+    } else if (cursoCodigo.equals("MD")) {
         bloqueAsignado = "FC-PREISF02A01M";
-    } else if (email.contains("hector.delgadoe")) {
-        cursoAsignado = "PROGRAMACIÓN ORIENTADA A OBJETOS II";
+    } else if (cursoCodigo.equals("POO2")) {
         bloqueAsignado = "FC-PREIEM04B01T";
     }
 %>
@@ -331,86 +351,105 @@
             <strong>Semestre:</strong> 2026-01
         </div>
 
-        <!-- Tabla de Alumnos -->
-        <table id="tabla-notas">
-            <thead>
-                <tr>
-                    <th style="text-align: left;">Alumno</th>
-                    <th>PC1</th>
-                    <th>PC2</th>
-                    <th>PC3</th>
-                    <th>Ex. Parcial</th>
-                    <th>Ex. Final</th>
-                    <th>Prom. Final</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- Fila Alumno 1 (Guillermo Hoyos - Nuevo) -->
-                <tr class="alumno-row" data-id="1">
-                    <td>
-                        <span class="txt-alumno">Guillermo Hoyos Palomares</span><br>
-                        <span class="txt-codigo">U20231546</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="15.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="16.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="15.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="17.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda aprobado" id="prom-1">15.60</td>
-                </tr>
-
-                <!-- Fila Alumno 2 (Javier Costa - Nuevo) -->
-                <tr class="alumno-row" data-id="2">
-                    <td>
-                        <span class="txt-alumno">Javier Enrique Costa Saravia</span><br>
-                        <span class="txt-codigo">U20212058</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="12.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="13.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="12.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="13.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda aprobado" id="prom-2">12.80</td>
-                </tr>
-
-                <!-- Fila Alumno 3 (Sofía Rossel - Existente) -->
-                <tr class="alumno-row" data-id="3">
-                    <td>
-                        <span class="txt-alumno">Sofía Rossel Mendoza Quispe</span><br>
-                        <span class="txt-codigo">U20221045</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="15.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="13.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="14.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="15.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda aprobado" id="prom-3">14.30</td>
-                </tr>
-
-                <!-- Fila Alumno 4 (Carlos Díaz - Existente) -->
-                <tr class="alumno-row" data-id="4">
-                    <td>
-                        <span class="txt-alumno">Carlos Alberto Díaz Ruiz</span><br>
-                        <span class="txt-codigo">U20212034</span>
-                    </td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc1" value="11.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc2" value="10.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input pc3" value="12.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ep" value="8.0" min="0" max="20" step="0.5"></td>
-                    <td style="text-align: center;"><input type="number" class="grade-input ef" value="11.0" min="0" max="20" step="0.5"></td>
-                    <td class="promedio-celda desaprobado" id="prom-4">10.40</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <!-- Botones de Acción -->
-        <div class="btn-group">
-            <button type="button" class="btn btn-cancelar" onclick="window.location.reload();">Cancelar</button>
-            <button type="button" class="btn btn-guardar" id="btn-save">Guardar Cambios</button>
-        </div>
-
+        <!-- Formulario de Calificaciones -->
+        <form action="${pageContext.request.contextPath}/controller/GuardarNotasServlet" method="POST">
+            <!-- Tabla de Alumnos -->
+            <table id="tabla-notas">
+                <thead>
+                    <tr>
+                        <th style="text-align: left;">Alumno</th>
+                        <th>PC1</th>
+                        <th>PC2</th>
+                        <th>PC3</th>
+                        <th>Ex. Parcial</th>
+                        <th>Ex. Final</th>
+                        <th>Prom. Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                        try (Connection conn = ConexionBD.getConexion();
+                             PreparedStatement ps = conn.prepareStatement(
+                                 "SELECT m.id AS matricula_id, a.codigo_alumno, a.nombre || ' ' || a.apellido AS alumno_nombre, " +
+                                 "n.pc1, n.pc2, n.pc3, n.examen_parcial, n.examen_final, n.promedio_final " +
+                                 "FROM matriculas m " +
+                                 "JOIN alumnos a ON m.alumno_id = a.id " +
+                                 "LEFT JOIN notas n ON n.matricula_id = m.id " +
+                                 "WHERE m.curso_id = ? " +
+                                 "ORDER BY a.apellido, a.nombre")) {
+                            ps.setInt(1, cursoId);
+                            try (ResultSet rs = ps.executeQuery()) {
+                                boolean tieneAlumnos = false;
+                                while (rs.next()) {
+                                    tieneAlumnos = true;
+                                    int matriculaId = rs.getInt("matricula_id");
+                                    String codigoAlumno = rs.getString("codigo_alumno");
+                                    String alumnoNombre = rs.getString("alumno_nombre");
+                                    double pc1 = rs.getDouble("pc1");
+                                    double pc2 = rs.getDouble("pc2");
+                                    double pc3 = rs.getDouble("pc3");
+                                    double ep = rs.getDouble("examen_parcial");
+                                    double ef = rs.getDouble("examen_final");
+                                    double pf = rs.getDouble("promedio_final");
+                                    
+                                    String classPromedio = (pf >= 11.5) ? "promedio-celda aprobado" : "promedio-celda desaprobado";
+                    %>
+                    <tr class="alumno-row" data-id="<%= matriculaId %>">
+                        <td>
+                            <input type="hidden" name="matricula_ids" value="<%= matriculaId %>">
+                            <span class="txt-alumno"><%= alumnoNombre %></span><br>
+                            <span class="txt-codigo"><%= codigoAlumno %></span>
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" name="pc1_<%= matriculaId %>" class="grade-input pc1" value="<%= String.format(java.util.Locale.US, "%.1f", pc1) %>" min="0" max="20" step="0.1">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" name="pc2_<%= matriculaId %>" class="grade-input pc2" value="<%= String.format(java.util.Locale.US, "%.1f", pc2) %>" min="0" max="20" step="0.1">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" name="pc3_<%= matriculaId %>" class="grade-input pc3" value="<%= String.format(java.util.Locale.US, "%.1f", pc3) %>" min="0" max="20" step="0.1">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" name="ep_<%= matriculaId %>" class="grade-input ep" value="<%= String.format(java.util.Locale.US, "%.1f", ep) %>" min="0" max="20" step="0.1">
+                        </td>
+                        <td style="text-align: center;">
+                            <input type="number" name="ef_<%= matriculaId %>" class="grade-input ef" value="<%= String.format(java.util.Locale.US, "%.1f", ef) %>" min="0" max="20" step="0.1">
+                        </td>
+                        <td class="<%= classPromedio %>" id="prom-<%= matriculaId %>"><%= String.format(java.util.Locale.US, "%.2f", pf) %></td>
+                    </tr>
+                    <%
+                                }
+                                if (!tieneAlumnos) {
+                    %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #666666; padding: 20px;">
+                            No hay alumnos matriculados en este curso.
+                        </td>
+                    </tr>
+                    <%
+                                }
+                            }
+                        } catch (Exception e) {
+                    %>
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: red; padding: 20px; font-weight: bold;">
+                            Error al cargar alumnos: <%= e.getMessage() %>
+                        </td>
+                    </tr>
+                    <%
+                        }
+                    %>
+                </tbody>
+            </table>
+ 
+            <!-- Botones de Acción -->
+            <div class="btn-group">
+                <button type="button" class="btn btn-cancelar" onclick="window.location.reload();">Cancelar</button>
+                <button type="submit" class="btn btn-guardar" id="btn-save">Guardar Cambios</button>
+            </div>
+        </form>
     </div>
-
+ 
     <!-- Script de Calculo Interactivo Local -->
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -444,19 +483,6 @@
                         promCell.className = "promedio-celda aprobado";
                     }
                 });
-            });
-
-            // Acción del botón guardar
-            const saveBtn = document.getElementById("btn-save");
-            const mensajeExito = document.getElementById("mensaje-exito");
-
-            saveBtn.addEventListener("click", function() {
-                mensajeExito.style.display = "block";
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                
-                setTimeout(function() {
-                    mensajeExito.style.display = "none";
-                }, 3000);
             });
         });
     </script>

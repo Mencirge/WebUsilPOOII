@@ -129,59 +129,75 @@ INSERT INTO usuarios (id, codigo_o_correo, password, rol_id, estado, intentos_fa
 (32, 'gianpierre.walde@usil.pe', '2345678', 3, 'ACTIVO', 0, NULL),
 (33, 'henry.yeren@usil.pe', '2345678', 3, 'ACTIVO', 0, NULL);
 
--- Perfiles de Docentes
+-- Perfiles de Docentes (especialidad coincide exactamente con el nombre de los 5 cursos)
 INSERT INTO docentes (usuario_id, nombre, apellido, codigo_docente, especialidad) VALUES
-(2, 'Juan Carlos', 'Pérez Silva', 'D20210001', 'Ingeniería de Software'),
+(2, 'Juan Carlos', 'Pérez Silva', 'D20210001', 'Programación Orientada a Objetos II'),
 (5, 'Carlos Juan', 'Bravo Quispe', 'D20220101', 'Cálculo de una Variable'),
-(6, 'Tania', 'Torres Aponte', 'D20230202', 'Estadística'),
+(6, 'Tania', 'Torres Aponte', 'D20230202', 'Estadística Descriptiva e Inferencia Estadística'),
 (7, 'Luis Alberto', 'Salazar Mariños', 'D20210303', 'Interacción Humano Computador'),
 (8, 'Marisel Rocio', 'Beteta Salas', 'D20240404', 'Matemática Discreta'),
 (9, 'Hector Odin', 'Delgado Enriquez', 'D20200505', 'Programación Orientada a Objetos II');
 
--- Perfiles de Alumnos (incluye a tus 24 compañeros de clase)
+-- Perfiles de Alumnos (incluye a tus 24 compañeros de clase, distribuidos entre el 2do y 3er ciclo)
 INSERT INTO alumnos (usuario_id, nombre, apellido, codigo_alumno, carrera, ciclo) VALUES
-(3, 'Sofía Rossel', 'Mendoza Quispe', 'U20221045', 'Ingeniería de Sistemas de Información', 4),
-(4, 'Usuario de Prueba', 'Bloqueado', 'U20249999', 'Ingeniería de Sistemas de Información', 1),
-(10, 'GUILLERMO ENRIQUE', 'HOYOS PALOMARES', '2510682', 'ING SIST. INFORMACION', 1),
-(11, 'JAVIER ENRIQUE', 'COSTA SARAVIA', '2510668', 'ING SIST. INFORMACION', 1),
-(12, 'VICTOR JOAQUIN', 'ARIAS RODRIGUEZ', '2512854', 'ING SIST. INFORMACION', 1),
-(13, 'ALEXANDRA XIOMARA', 'AÑAZCO VALVERDE', '2410212', 'ING SIST. INFORMACION', 1),
-(14, 'PIERO SAMUEL', 'BERNARDO RUIZ', '2320477', 'ING SIST. INFORMACION', 1),
-(15, 'NAYELY MISHELL', 'CASTILLO GARAY', '2512810', 'ING. EMPRESARIA', 1),
-(16, 'YAREL JOSHUA', 'CHANCA MELGAR', '2411997', 'ING. SOFTWARE', 1),
-(17, 'FABIAN AUGUSTO', 'CHAVEZ VILLAVICENCIO', '2510158', 'ING SIST. INFORMACION', 1),
-(18, 'RODRIGO ANDRE', 'CORREA YACILA', '2410590', 'ING. SOFTWARE', 1),
-(19, 'MARCO ANTONIO', 'GARCIA RAYME', '2412712', 'ING SIST. INFORMACION', 1),
-(20, 'JAHLOVE SABAH', 'GUERRERO VALENCIA', '2310819', 'ING. EMPRESARIA', 1),
-(21, 'THIAGO ANDRE', 'IBARRA DEL CASTILLO', '2410309', 'ING SIST. INFORMACION', 1),
-(22, 'MARCO ANTONIO', 'NAKASHIMA ESPINOZA', '2411946', 'ING. SOFTWARE', 1),
-(23, 'RENATO ENRIQUE', 'PATIÑO QUISPE', '2410049', 'ING. SOFTWARE', 1),
-(24, 'JUAN ANTONIO', 'PEREZ CONCHA', '2320386', 'ING. SOFTWARE', 1),
-(25, 'SOLANGE DAFNE', 'RIVERO CAILLAUX', '2312167', 'ING. IND ALIMEN', 1),
-(26, 'PAOLA ROSMERY', 'ROMERO RAMIREZ', '2221241', 'ING SIST. INFORMACION', 1),
-(27, 'KEVIN JESUS', 'RUIZ BALDOCEDA', '2411109', 'ING SIST. INFORMACION', 1),
-(28, 'RODRIGO STEPHANO', 'SALCEDO MENDIVIL', '2410409', 'ING SIST. INFORMACION', 1),
-(29, 'YOSSELIN NICOLE', 'SERPA QUIÑONES', '2411272', 'ING. EMPRESARIA', 1),
-(30, 'DAIRA BERENICE', 'SOLIS LARRAURI', '2410167', 'ING. SOFTWARE', 1),
-(31, 'GIANELLA MAGALY', 'VALENZUELA MIGUEL', '2422005', 'ING. SOFTWARE', 1),
-(32, 'GIANPIERRE JHON', 'WALDE CHAUCA', '2410764', 'ING. SOFTWARE', 1),
-(33, 'HENRY EDUARDO', 'YEREN ALMEYDA', '2411036', 'ING SIST. INFORMACION', 1);
+(3, 'Sofía Rossel', 'Mendoza Quispe', 'U20221045', 'Ingeniería de Sistemas de Información', 2),
+(4, 'Usuario de Prueba', 'Bloqueado', 'U20249999', 'Ingeniería de Sistemas de Información', 2),
+(10, 'GUILLERMO ENRIQUE', 'HOYOS PALOMARES', '2510682', 'ING SIST. INFORMACION', 2),
+(11, 'JAVIER ENRIQUE', 'COSTA SARAVIA', '2510668', 'ING SIST. INFORMACION', 3),
+(12, 'VICTOR JOAQUIN', 'ARIAS RODRIGUEZ', '2512854', 'ING SIST. INFORMACION', 2),
+(13, 'ALEXANDRA XIOMARA', 'AÑAZCO VALVERDE', '2410212', 'ING SIST. INFORMACION', 3),
+(14, 'PIERO SAMUEL', 'BERNARDO RUIZ', '2320477', 'ING SIST. INFORMACION', 2),
+(15, 'NAYELY MISHELL', 'CASTILLO GARAY', '2512810', 'ING. EMPRESARIA', 3),
+(16, 'YAREL JOSHUA', 'CHANCA MELGAR', '2411997', 'ING. SOFTWARE', 2),
+(17, 'FABIAN AUGUSTO', 'CHAVEZ VILLAVICENCIO', '2510158', 'ING SIST. INFORMACION', 3),
+(18, 'RODRIGO ANDRE', 'CORREA YACILA', '2410590', 'ING. SOFTWARE', 2),
+(19, 'MARCO ANTONIO', 'GARCIA RAYME', '2412712', 'ING SIST. INFORMACION', 3),
+(20, 'JAHLOVE SABAH', 'GUERRERO VALENCIA', '2310819', 'ING. EMPRESARIA', 2),
+(21, 'THIAGO ANDRE', 'IBARRA DEL CASTILLO', '2410309', 'ING SIST. INFORMACION', 3),
+(22, 'MARCO ANTONIO', 'NAKASHIMA ESPINOZA', '2411946', 'ING. SOFTWARE', 2),
+(23, 'RENATO ENRIQUE', 'PATIÑO QUISPE', '2410049', 'ING. SOFTWARE', 3),
+(24, 'JUAN ANTONIO', 'PEREZ CONCHA', '2320386', 'ING. SOFTWARE', 2),
+(25, 'SOLANGE DAFNE', 'RIVERO CAILLAUX', '2312167', 'ING. IND ALIMEN', 3),
+(26, 'PAOLA ROSMERY', 'ROMERO RAMIREZ', '2221241', 'ING SIST. INFORMACION', 2),
+(27, 'KEVIN JESUS', 'RUIZ BALDOCEDA', '2411109', 'ING SIST. INFORMACION', 3),
+(28, 'RODRIGO STEPHANO', 'SALCEDO MENDIVIL', '2410409', 'ING SIST. INFORMACION', 2),
+(29, 'YOSSELIN NICOLE', 'SERPA QUIÑONES', '2411272', 'ING. EMPRESARIA', 3),
+(30, 'DAIRA BERENICE', 'SOLIS LARRAURI', '2410167', 'ING. SOFTWARE', 2),
+(31, 'GIANELLA MAGALY', 'VALENZUELA MIGUEL', '2422005', 'ING. SOFTWARE', 3),
+(32, 'GIANPIERRE JHON', 'WALDE CHAUCA', '2410764', 'ING. SOFTWARE', 2),
+(33, 'HENRY EDUARDO', 'YEREN ALMEYDA', '2411036', 'ING SIST. INFORMACION', 3);
 
--- Cursos de Prueba
+-- 6. Los 5 Cursos oficiales
 INSERT INTO cursos (codigo, nombre, creditos) VALUES
-('POO2', 'Programación Orientada a Objetos II', 5),
-('BD1', 'Diseño de Base de Datos', 4),
-('CAL2', 'Cálculo Multivariable', 4);
+('CAL1', 'Cálculo de una Variable', 4),
+('EST1', 'Estadística Descriptiva e Inferencia Estadística', 4),
+('IHC', 'Interacción Humano Computador', 3),
+('MD', 'Matemática Discreta', 4),
+('POO2', 'Programación Orientada a Objetos II', 5);
 
--- Matrícula del Alumno en Cursos
-INSERT INTO matriculas (alumno_id, curso_id, semestre) VALUES
-(1, 1, '2026-1'), 
-(1, 2, '2026-1'), 
-(1, 3, '2026-1'); 
+-- 7. Matricular a todos los alumnos en todos los 5 cursos
+INSERT INTO matriculas (alumno_id, curso_id, semestre)
+SELECT a.id, c.id, '2026-1'
+FROM alumnos a
+CROSS JOIN cursos c;
 
--- Notas Iniciales
-INSERT INTO notas (matricula_id, pc1, pc2, pc3, examen_parcial, examen_final, promedio_final) VALUES
-(1, 15.00, 16.00, 14.00, 15.00, 17.00, 15.60);
+-- 8. Inicializar notas de prueba reales para cada matrícula en la BD
+-- Se colocan notas iniciales variadas basadas en el id del alumno para que no estén vacías
+INSERT INTO notas (matricula_id, pc1, pc2, pc3, examen_parcial, examen_final, promedio_final)
+SELECT 
+    m.id, 
+    ROUND(11 + (m.alumno_id % 9)::numeric, 2) AS pc1,
+    ROUND(12 + (m.alumno_id % 7)::numeric, 2) AS pc2,
+    ROUND(10 + (m.alumno_id % 8)::numeric, 2) AS pc3,
+    ROUND(11 + (m.alumno_id % 6)::numeric, 2) AS ep,
+    ROUND(12 + (m.alumno_id % 5)::numeric, 2) AS ef,
+    ROUND(
+        ((11 + (m.alumno_id % 9) + 12 + (m.alumno_id % 7) + 10 + (m.alumno_id % 8)) / 3.0 * 0.3) +
+        ((11 + (m.alumno_id % 6)) * 0.3) +
+        ((12 + (m.alumno_id % 5)) * 0.4), 
+        2
+    ) AS pf
+FROM matriculas m;
 
 -- Sincronizar secuencias
 SELECT setval(pg_get_serial_sequence('usuarios', 'id'), coalesce(max(id), 1)) FROM usuarios;
