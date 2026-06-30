@@ -1,11 +1,19 @@
 package pe.edu.usil.poo2.model.entity;
 
+/**
+ * Entidad de dominio pura que representa a un Rol de usuario.
+ */
 public class Rol {
     private int id;
     private String nombre;
-    private String descripcion;
+    private String descripcion; // Mantenido para soporte de auditoría e información de base de datos
 
     public Rol() {
+    }
+
+    public Rol(int id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
     }
 
     public Rol(int id, String nombre, String descripcion) {

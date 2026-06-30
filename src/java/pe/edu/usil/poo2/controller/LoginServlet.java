@@ -65,13 +65,13 @@ public class LoginServlet extends HttpServlet {
             String rol = usuario.getRolNombre();
             switch (rol) {
                 case "ALUMNO":
-                    response.sendRedirect(request.getContextPath() + "/dashboard_alumno.jsp");
+                    response.sendRedirect(request.getContextPath() + "/DashboardAlumnoServlet");
                     break;
                 case "DOCENTE":
-                    response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp");
+                    response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet");
                     break;
                 case "ADMIN":
-                    response.sendRedirect(request.getContextPath() + "/admin_panel.jsp");
+                    response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
                     break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/login.jsp?error=Rol+no+reconocido");

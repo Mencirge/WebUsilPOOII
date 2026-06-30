@@ -2,21 +2,25 @@ package pe.edu.usil.poo2.model.entity;
 
 import java.sql.Timestamp;
 
+/**
+ * Entidad de dominio pura que representa a un Usuario del sistema.
+ * Agrupa credenciales, estado de bloqueo, e información de contacto.
+ */
 public class Usuario {
     private int id;
     private String codigoOCorreo;
     private String password;
     private int rolId;
-    private String rolNombre; 
-    private String estado;    
     private int intentosFallidos;
     private Timestamp bloqueadoHasta;
-    
-    // Nuevos campos para mostrar datos dinámicos de alumnos y docentes
-    private String nombreCompleto;
-    private String codigoAlumnoODocente;
     private String correoPersonal;
     private String telefono;
+    private String estado; // ACTIVO/BLOQUEADO
+
+    // Campos auxiliares para la capa de presentación (manteniendo compatibilidad)
+    private String rolNombre; 
+    private String nombreCompleto;
+    private String codigoAlumnoODocente;
 
     public Usuario() {
     }
@@ -43,22 +47,7 @@ public class Usuario {
         this.telefono = telefono;
     }
 
-    public String getCorreoPersonal() {
-        return correoPersonal;
-    }
-
-    public void setCorreoPersonal(String correoPersonal) {
-        this.correoPersonal = correoPersonal;
-    }
-
-    public String getTelefono() {
-        return telefono;
-    }
-
-    public void setTelefono(String telefono) {
-        this.telefono = telefono;
-    }
-
+    // Helper methods para bloqueo temporal
     public boolean isBloqueado() {
         if (bloqueadoHasta != null) {
             long currentTime = System.currentTimeMillis();
@@ -111,22 +100,6 @@ public class Usuario {
         this.rolId = rolId;
     }
 
-    public String getRolNombre() {
-        return rolNombre;
-    }
-
-    public void setRolNombre(String rolNombre) {
-        this.rolNombre = rolNombre;
-    }
-
-    public String getEstado() {
-        return estado;
-    }
-
-    public void setEstado(String estado) {
-        this.estado = estado;
-    }
-
     public int getIntentosFallidos() {
         return intentosFallidos;
     }
@@ -141,6 +114,38 @@ public class Usuario {
 
     public void setBloqueadoHasta(Timestamp bloqueadoHasta) {
         this.bloqueadoHasta = bloqueadoHasta;
+    }
+
+    public String getCorreoPersonal() {
+        return correoPersonal;
+    }
+
+    public void setCorreoPersonal(String correoPersonal) {
+        this.correoPersonal = correoPersonal;
+    }
+
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public String getRolNombre() {
+        return rolNombre;
+    }
+
+    public void setRolNombre(String rolNombre) {
+        this.rolNombre = rolNombre;
     }
 
     public String getNombreCompleto() {

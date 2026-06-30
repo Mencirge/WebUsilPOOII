@@ -8,8 +8,17 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import pe.edu.usil.poo2.model.dao.UsuarioDAO;
+import pe.edu.usil.poo2.model.entity.Nota;
 import pe.edu.usil.poo2.model.entity.Usuario;
+import pe.edu.usil.poo2.model.logic.EstrategiaEvaluacionRegular;
+import pe.edu.usil.poo2.model.logic.GestorNotasSubject;
+import pe.edu.usil.poo2.model.logic.IEstrategiaEvaluacion;
+import pe.edu.usil.poo2.model.logic.RegistroAuditoriaObserver;
 
+/**
+ * Servlet controlador encargado de procesar el guardado de notas.
+ * Aplica los patrones Strategy (cálculo) y Observer (auditoría/registro) antes de persistir en BD.
+ */
 @WebServlet(name = "GuardarNotasServlet", urlPatterns = {"/controller/GuardarNotasServlet"})
 public class GuardarNotasServlet extends HttpServlet {
 
@@ -20,7 +29,13 @@ public class GuardarNotasServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+        Usuario usuario = null;
+        if (session != null) {
+            usuario = (Usuario) session.getAttribute("usuarioLogueado");
+            if (usuario == null) {
+                usuario = (Usuario) session.getAttribute("usuario");
+            }
+        }
 
         // Validar sesión y rol de docente
         if (usuario == null || !"DOCENTE".equals(usuario.getRolNombre())) {
@@ -28,9 +43,10 @@ public class GuardarNotasServlet extends HttpServlet {
             return;
         }
 
+        // Obtener parámetros del formulario (procesamiento por fila de alumno)
         String[] matriculaIds = request.getParameterValues("matricula_ids");
         if (matriculaIds == null || matriculaIds.length == 0) {
-            response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp?error=No+se+encontraron+alumnos+para+guardar");
+            response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?error=No+se+encontraron+alumnos");
             return;
         }
 
@@ -55,30 +71,56 @@ public class GuardarNotasServlet extends HttpServlet {
 
                 // Validar rango de notas (0 a 20)
                 if (pc1 < 0 || pc1 > 20 || pc2 < 0 || pc2 > 20 || pc3 < 0 || pc3 > 20 || ep < 0 || ep > 20 || ef < 0 || ef > 20) {
-                    response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp?error=Las+notas+deben+estar+entre+0+y+20");
+                    response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?error=Notas+deben+estar+entre+0+y+20");
                     return;
                 }
 
-                // Calcular promedio final: 30% Promedio PCs (PC1+PC2+PC3)/3 + 30% EP + 40% EF
-                double promPC = (pc1 + pc2 + pc3) / 3.0;
-                double promedioFinal = (promPC * 0.3) + (ep * 0.3) + (ef * 0.4);
-                double promedioFinalRedondeado = Math.round(promedioFinal * 100.0) / 100.0;
+                // INTEGRACIÓN DE PATRONES DE DISEÑO (FASE 3)
+                
+                // 1. Instanciar la entidad Nota con los valores recibidos
+                Nota nota = new Nota();
+                nota.setMatriculaId(matriculaId);
+                nota.setPc1(pc1);
+                nota.setPc2(pc2);
+                nota.setPc3(pc3);
+                nota.setExamenParcial(ep);
+                nota.setExamenFinal(ef);
 
-                // Actualizar en base de datos
-                boolean exito = usuarioDAO.actualizarNotas(matriculaId, pc1, pc2, pc3, ep, ef, promedioFinalRedondeado);
-                if (!exito) {
+                // 2. Instanciar EstrategiaEvaluacionRegular (Strategy)
+                IEstrategiaEvaluacion estrategia = new EstrategiaEvaluacionRegular();
+
+                // 3. Instanciar GestorNotasSubject (Sujeto) y añadirle un RegistroAuditoriaObserver (Observer)
+                GestorNotasSubject gestor = new GestorNotasSubject();
+                gestor.agregarObservador(new RegistroAuditoriaObserver());
+
+                // 4. Procesar promedio y notificar observadores reactivos en consola
+                gestor.procesarYGuardarNota(nota, estrategia, usuario.getCodigoOCorreo());
+
+                // 5. Persistencia real en PostgreSQL (Supabase)
+                boolean exitoBD = usuarioDAO.actualizarNotas(
+                    nota.getMatriculaId(),
+                    nota.getPc1(),
+                    nota.getPc2(),
+                    nota.getPc3(),
+                    nota.getExamenParcial(),
+                    nota.getExamenFinal(),
+                    nota.getPromedioFinal()
+                );
+                
+                if (!exitoBD) {
                     todosExitosos = false;
                 }
             }
 
             if (todosExitosos) {
-                response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp?success=Notas+actualizadas+correctamente");
+                // Redirige de vuelta al dashboard del docente indicando éxito
+                response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?success=true");
             } else {
-                response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp?error=Algunas+notas+no+se+pudieron+guardar");
+                response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?error=Error+al+guardar+algunas+notas");
             }
 
         } catch (NumberFormatException e) {
-            response.sendRedirect(request.getContextPath() + "/dashboard_docente.jsp?error=Formato+de+nota+invalido");
+            response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?error=Formato+de+nota+invalido");
         }
     }
 }

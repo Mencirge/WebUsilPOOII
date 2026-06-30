@@ -84,13 +84,13 @@ public class AuthFilter implements Filter {
         String contextPath = request.getContextPath();
         switch (rol) {
             case "ALUMNO":
-                response.sendRedirect(contextPath + "/dashboard_alumno.jsp");
+                response.sendRedirect(contextPath + "/DashboardAlumnoServlet");
                 break;
             case "DOCENTE":
-                response.sendRedirect(contextPath + "/dashboard_docente.jsp");
+                response.sendRedirect(contextPath + "/DashboardDocenteServlet");
                 break;
             case "ADMIN":
-                response.sendRedirect(contextPath + "/admin_panel.jsp");
+                response.sendRedirect(contextPath + "/AdminDashboardServlet");
                 break;
             default:
                 response.sendRedirect(contextPath + "/login.jsp?error=Rol+no+reconocido");
