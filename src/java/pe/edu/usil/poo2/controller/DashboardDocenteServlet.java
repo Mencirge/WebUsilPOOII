@@ -7,15 +7,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import pe.edu.usil.poo2.model.entity.Curso;
 import pe.edu.usil.poo2.model.entity.Usuario;
+import pe.edu.usil.poo2.util.ConexionBD;
 import pe.edu.usil.poo2.util.ConfiguracionInstitucion;
 
 /**
  * Servlet controlador encargado de gestionar el Dashboard del Docente.
- * Carga los cursos asignados y los transfiere a la vista JSP de selección.
+ * Carga los cursos asignados al docente desde la BD utilizando JDBC.
  */
 @WebServlet(name = "DashboardDocenteServlet", urlPatterns = {"/DashboardDocenteServlet"})
 public class DashboardDocenteServlet extends HttpServlet {
@@ -40,21 +45,39 @@ public class DashboardDocenteServlet extends HttpServlet {
             return;
         }
 
-        // 1. Simular la lista de cursos asignados al docente utilizando la entidad Curso
+        // Obtener cursos del docente conectando a PostgreSQL
         List<Curso> cursos = new ArrayList<>();
-        cursos.add(new Curso(5, "POO2", "Programación Orientada a Objetos II", 5));
-        cursos.add(new Curso(2, "EST1", "Estadística Descriptiva e Inferencia Estadística", 4));
-        cursos.add(new Curso(3, "IHC", "Interacción Humano Computador", 3));
+        String sql = "SELECT c.id, c.codigo, c.nombre, c.creditos "
+                   + "FROM cursos c "
+                   + "JOIN docentes d ON c.nombre = d.especialidad "
+                   + "WHERE d.usuario_id = ?";
 
-        // 2. Obtener configuración de marca blanca (Singleton)
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, usuario.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    cursos.add(new Curso(
+                        rs.getInt("id"),
+                        rs.getString("codigo"),
+                        rs.getString("nombre"),
+                        rs.getInt("creditos")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error al cargar cursos reales del docente: " + e.getMessage());
+        }
+
+        // Obtener configuración de marca blanca (Singleton)
         ConfiguracionInstitucion configuracion = ConfiguracionInstitucion.getInstancia();
 
-        // 3. Pasar atributos al request
+        // Pasar atributos al request
         request.setAttribute("cursos", cursos);
         request.setAttribute("configuracion", configuracion);
         request.setAttribute("docente", usuario);
 
-        // 4. Redireccionar hacia la vista docente_dashboard.jsp
+        // Redireccionar hacia la vista docente_dashboard.jsp
         request.getRequestDispatcher("/docente_dashboard.jsp").forward(request, response);
     }
 

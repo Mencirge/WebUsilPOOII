@@ -77,6 +77,9 @@
                         <small class="d-block text-white-50">Bienvenido(a), Estudiante</small>
                         <span class="fw-semibold">${alumno.nombre} ${alumno.apellido}</span>
                     </div>
+                    <a href="${pageContext.request.contextPath}/CambiarPasswordServlet" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1 me-2">
+                        <i class="bi bi-key-fill"></i> Cambiar Clave
+                    </a>
                     <a href="${pageContext.request.contextPath}/LogoutServlet" class="btn btn-outline-light btn-sm d-flex align-items-center gap-1">
                         <i class="bi bi-box-arrow-right"></i> Salir
                     </a>

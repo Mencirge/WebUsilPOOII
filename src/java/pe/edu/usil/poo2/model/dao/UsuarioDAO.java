@@ -8,8 +8,65 @@ import java.sql.Timestamp;
 import pe.edu.usil.poo2.model.entity.Usuario;
 import pe.edu.usil.poo2.util.ConexionBD;
 
+/**
+ * Clase Data Access Object (DAO) para la entidad Usuario.
+ * Gestiona consultas SQL y transacciones de seguridad a la base de datos PostgreSQL.
+ */
 public class UsuarioDAO {
 
+    /**
+     * Valida el login de un usuario buscando por su código o correo y verificando la contraseña.
+     */
+    public Usuario validarLogin(String correo, String password) {
+        Usuario user = obtenerPorCodigoOCorreo(correo);
+        if (user != null && user.getPassword().equals(password)) {
+            return user;
+        }
+        return null;
+    }
+
+    /**
+     * Incrementa en +1 el conteo de intentos fallidos de login. Si llega a 3, bloquea la cuenta.
+     */
+    public void registrarIntentoFallido(String correo) {
+        Usuario user = obtenerPorCodigoOCorreo(correo);
+        if (user == null || "ADMIN".equals(user.getRolNombre())) {
+            return; // No incrementar intentos para admin o cuentas inexistentes
+        }
+        
+        int nuevosIntentos = user.getIntentosFallidos() + 1;
+        String nuevoEstado = nuevosIntentos >= 3 ? "BLOQUEADO" : user.getEstado();
+        
+        String sql = "UPDATE usuarios SET intentos_fallidos = ?, estado = ? WHERE id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, nuevosIntentos);
+            ps.setString(2, nuevoEstado);
+            ps.setInt(3, user.getId());
+            ps.executeUpdate();
+            System.out.println("[SEGURIDAD] Intento fallido registrado para " + correo + ". Total: " + nuevosIntentos + ", Estado: " + nuevoEstado);
+        } catch (SQLException e) {
+            System.err.println("Error al registrar intento fallido: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Restablece los intentos fallidos de login a 0 al autenticarse con éxito.
+     */
+    public void resetearIntentos(int usuarioId) {
+        resetearIntentosFallidos(usuarioId);
+    }
+
+    /**
+     * Actualiza la contraseña de un usuario determinado.
+     */
+    public boolean actualizarPassword(int usuarioId, String nuevaPassword) {
+        return cambiarPassword(usuarioId, nuevaPassword);
+    }
+
+    /**
+     * Busca y mapea un usuario según su correo institucional, código de alumno o código de docente.
+     */
     public Usuario obtenerPorCodigoOCorreo(String codigoOCorreo) {
         if (codigoOCorreo == null || codigoOCorreo.trim().isEmpty()) {
             return null;

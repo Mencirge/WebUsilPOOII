@@ -10,6 +10,10 @@ import java.io.IOException;
 import pe.edu.usil.poo2.model.dao.UsuarioDAO;
 import pe.edu.usil.poo2.model.entity.Usuario;
 
+/**
+ * Servlet controlador encargado de gestionar el inicio de sesión de usuarios (Login).
+ * Valida credenciales e implementa políticas de bloqueo temporal tras intentos fallidos.
+ */
 @WebServlet(name = "LoginServlet", urlPatterns = {"/LoginServlet"})
 public class LoginServlet extends HttpServlet {
 
@@ -19,75 +23,68 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String codigoOCorreo = request.getParameter("codigo_o_correo");
+        // Aceptar parámetros de correo/código indistintamente
+        String correo = request.getParameter("correo");
+        if (correo == null || correo.trim().isEmpty()) {
+            correo = request.getParameter("codigo_o_correo");
+        }
         String password = request.getParameter("password");
 
-        if (codigoOCorreo == null || codigoOCorreo.trim().isEmpty() || password == null || password.trim().isEmpty()) {
+        if (correo == null || correo.trim().isEmpty() || password == null || password.trim().isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/login.jsp?error=Campos+obligatorios");
             return;
         }
 
-        // 1. Obtener usuario de la base de datos
-        Usuario usuario = usuarioDAO.obtenerPorCodigoOCorreo(codigoOCorreo.trim());
+        correo = correo.trim();
 
-        if (usuario == null) {
-            // Mensaje genérico para evitar enumeración de usuarios por seguridad
+        // 1. Obtener los datos del usuario para verificar su estado de bloqueo primero
+        Usuario usuarioPre = usuarioDAO.obtenerPorCodigoOCorreo(correo);
+
+        if (usuarioPre == null) {
+            // Usuario no encontrado
             response.sendRedirect(request.getContextPath() + "/login.jsp?error=Credenciales+incorrectas");
             return;
         }
 
-        // 2. Verificar si está bloqueado temporalmente
-        if (usuario.isBloqueado()) {
-            long segundosRestantes = usuario.getSegundosRestantesBloqueo();
-            if (segundosRestantes > 0) {
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Usuario+bloqueado+temporalmente.+Espere+" + segundosRestantes + "+segundos");
-            } else {
-                // Si el tiempo de bloqueo ya expiró en tiempo de ejecución, pero su estado sigue BLOQUEADO en la base de datos,
-                // permitiremos continuar. Posteriormente, si se loguea con éxito o falla de nuevo, se actualizará en DB.
-                usuario.setEstado("ACTIVO");
-            }
+        // 2. Verificar si la cuenta está BLOQUEADA
+        if ("BLOQUEADO".equalsIgnoreCase(usuarioPre.getEstado())) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=Su+cuenta+ha+sido+BLOQUEADA.+Contacte+con+el+administrador.");
+            return;
         }
 
-        // 3. Validar la contraseña (comparación directa por simplicidad, reemplazable por hash)
-        boolean esCorrecta = usuario.getPassword().equals(password);
+        // 3. Validar credenciales
+        Usuario usuarioValido = usuarioDAO.validarLogin(correo, password);
 
-        if (esCorrecta) {
-            // Login Exitoso -> Resetear contador de intentos y guardar en sesión
-            usuarioDAO.resetearIntentosFallidos(usuario.getId());
-            usuario.setIntentosFallidos(0);
-            usuario.setEstado("ACTIVO");
-            usuario.setBloqueadoHasta(null);
-
+        if (usuarioValido != null) {
+            // LOGIN CORRECTO -> Resetear intentos fallidos
+            usuarioDAO.resetearIntentos(usuarioValido.getId());
+            
+            // Iniciar sesión y guardar el usuario bajo "usuarioLogueado" y "usuario" para compatibilidad
             HttpSession session = request.getSession(true);
-            session.setAttribute("usuario", usuario);
+            session.setAttribute("usuarioLogueado", usuarioValido);
+            session.setAttribute("usuario", usuarioValido);
 
-            // Redirección por Rol
-            String rol = usuario.getRolNombre();
-            switch (rol) {
-                case "ALUMNO":
-                    response.sendRedirect(request.getContextPath() + "/DashboardAlumnoServlet");
-                    break;
-                case "DOCENTE":
-                    response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet");
-                    break;
-                case "ADMIN":
-                    response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
-                    break;
-                default:
-                    response.sendRedirect(request.getContextPath() + "/login.jsp?error=Rol+no+reconocido");
-                    break;
+            // Redirigir según el rol del usuario
+            String rol = usuarioValido.getRolNombre();
+            if ("ADMIN".equalsIgnoreCase(rol)) {
+                response.sendRedirect(request.getContextPath() + "/AdminDashboardServlet");
+            } else if ("DOCENTE".equalsIgnoreCase(rol)) {
+                response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet");
+            } else if ("ALUMNO".equalsIgnoreCase(rol)) {
+                response.sendRedirect(request.getContextPath() + "/DashboardAlumnoServlet");
+            } else {
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Rol+no+soportado");
             }
         } else {
-            // Login Fallido -> Incrementar intentos
-            int nuevosIntentos = usuario.getIntentosFallidos() + 1;
-            usuarioDAO.registrarIntentoFallido(usuario.getId(), nuevosIntentos);
-
-            if (nuevosIntentos >= 3) {
-                // Bloquear por 5 minutos
-                usuarioDAO.bloquearUsuarioTemporalmente(usuario.getId(), 5);
-                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Cuenta+bloqueada+temporalmente+por+5+minutos+debido+a+3+intentos+fallidos");
+            // LOGIN INCORRECTO -> Registrar intento fallido
+            usuarioDAO.registrarIntentoFallido(correo);
+            
+            // Cargar de nuevo para mostrar los intentos restantes actualizados
+            Usuario usuarioPost = usuarioDAO.obtenerPorCodigoOCorreo(correo);
+            if (usuarioPost != null && "BLOQUEADO".equalsIgnoreCase(usuarioPost.getEstado())) {
+                response.sendRedirect(request.getContextPath() + "/login.jsp?error=Cuenta+bloqueada+por+alcanzar+el+limite+de+3+intentos+fallidos.");
             } else {
-                int intentosRestantes = 3 - nuevosIntentos;
+                int intentosRestantes = 3 - (usuarioPost != null ? usuarioPost.getIntentosFallidos() : 1);
                 response.sendRedirect(request.getContextPath() + "/login.jsp?error=Credenciales+incorrectas.+Intentos+restantes:+" + intentosRestantes);
             }
         }
@@ -96,7 +93,6 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Redirigir GETs accidentales al login
         response.sendRedirect(request.getContextPath() + "/login.jsp");
     }
 }

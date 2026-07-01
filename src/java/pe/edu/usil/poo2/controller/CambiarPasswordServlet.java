@@ -9,85 +9,111 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import pe.edu.usil.poo2.model.dao.UsuarioDAO;
 import pe.edu.usil.poo2.model.entity.Usuario;
+import pe.edu.usil.poo2.util.ConfiguracionInstitucion;
 
-@WebServlet(name = "CambiarPasswordServlet", urlPatterns = {"/controller/CambiarPasswordServlet"})
+/**
+ * Servlet controlador encargado de gestionar el cambio de contraseña de los usuarios autenticados.
+ * Valida la coincidencia y la contraseña actual antes de actualizar en PostgreSQL.
+ */
+@WebServlet(name = "CambiarPasswordServlet", urlPatterns = {"/CambiarPasswordServlet"})
 public class CambiarPasswordServlet extends HttpServlet {
 
     private final UsuarioDAO usuarioDAO = new UsuarioDAO();
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+        Usuario usuario = null;
+        if (session != null) {
+            usuario = (Usuario) session.getAttribute("usuarioLogueado");
+            if (usuario == null) {
+                usuario = (Usuario) session.getAttribute("usuario");
+            }
+        }
 
+        // Validar que el usuario esté autenticado
         if (usuario == null) {
-            response.sendRedirect(request.getContextPath() + "/login.jsp?error=Sesion+no+iniciada");
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=Debe+iniciar+sesion");
             return;
         }
 
+        // Cargar configuración de marca blanca (Singleton)
+        ConfiguracionInstitucion configuracion = ConfiguracionInstitucion.getInstancia();
+        request.setAttribute("configuracion", configuracion);
+
+        request.getRequestDispatcher("/cambiar_password.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        HttpSession session = request.getSession(false);
+        Usuario usuario = null;
+        if (session != null) {
+            usuario = (Usuario) session.getAttribute("usuarioLogueado");
+            if (usuario == null) {
+                usuario = (Usuario) session.getAttribute("usuario");
+            }
+        }
+
+        // Validar autenticación
+        if (usuario == null) {
+            response.sendRedirect(request.getContextPath() + "/login.jsp?error=Debe+iniciar+sesion");
+            return;
+        }
+
+        // Recibir parámetros
         String passwordActual = request.getParameter("password_actual");
-        String passwordNuevo = request.getParameter("password_nuevo");
-        String passwordNuevoConfirmar = request.getParameter("password_nuevo_confirmar");
+        String nuevaPassword = request.getParameter("nueva_password");
+        String confirmacion = request.getParameter("confirmacion");
 
-        if (passwordActual == null || passwordActual.trim().isEmpty() || 
-            passwordNuevo == null || passwordNuevo.trim().isEmpty() || 
-            passwordNuevoConfirmar == null || passwordNuevoConfirmar.trim().isEmpty()) {
-            redirigirConError(usuario, request, response, "Todos los campos son obligatorios");
+        // Validar campos obligatorios
+        if (passwordActual == null || passwordActual.trim().isEmpty() ||
+            nuevaPassword == null || nuevaPassword.trim().isEmpty() ||
+            confirmacion == null || confirmacion.trim().isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/CambiarPasswordServlet?error=Todos+los+campos+son+obligatorios");
             return;
         }
 
-        // Validar contraseña actual (comparación directa)
+        // 1. Validar que la nueva contraseña coincida con su confirmación
+        if (!nuevaPassword.equals(confirmacion)) {
+            response.sendRedirect(request.getContextPath() + "/CambiarPasswordServlet?error=La+nueva+contrasena+y+la+confirmacion+no+coinciden");
+            return;
+        }
+
+        // 2. Validar que la contraseña actual sea la correcta
         if (!usuario.getPassword().equals(passwordActual)) {
-            redirigirConError(usuario, request, response, "La contraseña actual es incorrecta");
+            response.sendRedirect(request.getContextPath() + "/CambiarPasswordServlet?error=La+contrasena+actual+es+incorrecta");
             return;
         }
 
-        // Validar que las contraseñas nuevas coincidan
-        if (!passwordNuevo.equals(passwordNuevoConfirmar)) {
-            redirigirConError(usuario, request, response, "Las nuevas contraseñas no coinciden");
-            return;
-        }
-
-        // Cambiar la contraseña en la base de datos
-        boolean exito = usuarioDAO.cambiarPassword(usuario.getId(), passwordNuevo);
+        // 3. Actualizar la contraseña en la base de datos PostgreSQL
+        boolean exito = usuarioDAO.actualizarPassword(usuario.getId(), nuevaPassword);
 
         if (exito) {
-            // Actualizar contraseña en el objeto de sesión
-            usuario.setPassword(passwordNuevo);
+            // Actualizar el objeto de usuario en la sesión actual
+            usuario.setPassword(nuevaPassword);
+            session.setAttribute("usuarioLogueado", usuario);
             session.setAttribute("usuario", usuario);
-            redirigirConExito(usuario, request, response, "Contraseña cambiada con éxito");
-        } else {
-            redirigirConError(usuario, request, response, "Error al cambiar la contraseña en la base de datos");
-        }
-    }
 
-    private void redirigirConExito(Usuario usuario, HttpServletRequest request, HttpServletResponse response, String msg) 
-            throws IOException {
-        String rol = usuario.getRolNombre();
-        String contextPath = request.getContextPath();
-        String param = "?success=" + java.net.URLEncoder.encode(msg, "UTF-8");
-        if ("ALUMNO".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_alumno.jsp" + param);
-        } else if ("DOCENTE".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_docente.jsp" + param);
-        } else {
-            response.sendRedirect(contextPath + "/admin_panel.jsp" + param);
-        }
-    }
+            System.out.println("[SEGURIDAD] Contraseña actualizada para el usuario: " + usuario.getCodigoOCorreo());
 
-    private void redirigirConError(Usuario usuario, HttpServletRequest request, HttpServletResponse response, String msg) 
-            throws IOException {
-        String rol = usuario.getRolNombre();
-        String contextPath = request.getContextPath();
-        String param = "?error=" + java.net.URLEncoder.encode(msg, "UTF-8");
-        if ("ALUMNO".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_alumno.jsp" + param);
-        } else if ("DOCENTE".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_docente.jsp" + param);
+            // Redirigir al panel correspondiente con mensaje de éxito
+            String rol = usuario.getRolNombre();
+            String redirectUrl;
+            if ("ADMIN".equalsIgnoreCase(rol)) {
+                redirectUrl = "/AdminDashboardServlet?successPass=true";
+            } else if ("DOCENTE".equalsIgnoreCase(rol)) {
+                redirectUrl = "/DashboardDocenteServlet?successPass=true";
+            } else {
+                redirectUrl = "/DashboardAlumnoServlet?successPass=true";
+            }
+            response.sendRedirect(request.getContextPath() + redirectUrl);
         } else {
-            response.sendRedirect(contextPath + "/admin_panel.jsp" + param);
+            response.sendRedirect(request.getContextPath() + "/CambiarPasswordServlet?error=Error+al+actualizar+la+contrasena+en+la+base+de+datos");
         }
     }
 }
