@@ -112,12 +112,37 @@ public class CargarAlumnosServlet extends HttpServlet {
             System.err.println("Error al cargar alumnos matriculados en CargarAlumnosServlet: " + e.getMessage());
         }
 
-        // 3. Pasar atributos al request
+        // 3. Obtener la lista completa de cursos asignados al docente para el Sidebar
+        List<Curso> cursosDocente = new ArrayList<>();
+        String sqlCursos = "SELECT c.id, c.codigo, c.nombre, c.creditos "
+                         + "FROM cursos c "
+                         + "JOIN docentes d ON c.nombre = d.especialidad "
+                         + "WHERE d.usuario_id = ?";
+        try (Connection con = ConexionBD.getConexion();
+             PreparedStatement ps = con.prepareStatement(sqlCursos)) {
+            ps.setInt(1, usuario.getId());
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    cursosDocente.add(new Curso(
+                        rs.getInt("id"),
+                        rs.getString("codigo"),
+                        rs.getString("nombre"),
+                        rs.getInt("creditos")
+                    ));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Error al cargar cursos asignados en CargarAlumnosServlet: " + e.getMessage());
+        }
+
+        // 4. Pasar atributos al request
         request.setAttribute("curso", curso);
         request.setAttribute("notas", notas);
+        request.setAttribute("cursos", cursosDocente);
+        request.setAttribute("docente", usuario);
         request.setAttribute("configuracion", ConfiguracionInstitucion.getInstancia());
 
-        // 4. Redireccionar hacia docente_notas_form.jsp
+        // 5. Redireccionar hacia docente_notas_form.jsp
         request.getRequestDispatcher("/docente_notas_form.jsp").forward(request, response);
     }
 }

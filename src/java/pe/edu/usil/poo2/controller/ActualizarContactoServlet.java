@@ -10,6 +10,10 @@ import java.io.IOException;
 import pe.edu.usil.poo2.model.dao.UsuarioDAO;
 import pe.edu.usil.poo2.model.entity.Usuario;
 
+/**
+ * Servlet controlador encargado de gestionar la actualización de datos de contacto del usuario.
+ * Redirige de vuelta a los dashboards controladores correspondientes tras completar la acción.
+ */
 @WebServlet(name = "ActualizarContactoServlet", urlPatterns = {"/controller/ActualizarContactoServlet"})
 public class ActualizarContactoServlet extends HttpServlet {
 
@@ -20,7 +24,13 @@ public class ActualizarContactoServlet extends HttpServlet {
             throws ServletException, IOException {
         
         HttpSession session = request.getSession(false);
-        Usuario usuario = (session != null) ? (Usuario) session.getAttribute("usuario") : null;
+        Usuario usuario = null;
+        if (session != null) {
+            usuario = (Usuario) session.getAttribute("usuarioLogueado");
+            if (usuario == null) {
+                usuario = (Usuario) session.getAttribute("usuario");
+            }
+        }
 
         if (usuario == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp?error=Sesion+no+iniciada");
@@ -42,6 +52,7 @@ public class ActualizarContactoServlet extends HttpServlet {
             // Actualizar el objeto de sesión
             usuario.setCorreoPersonal(correoPersonal.trim());
             usuario.setTelefono(telefono.trim());
+            session.setAttribute("usuarioLogueado", usuario);
             session.setAttribute("usuario", usuario);
             redirigirConExito(usuario, request, response, "Datos de contacto actualizados");
         } else {
@@ -55,11 +66,11 @@ public class ActualizarContactoServlet extends HttpServlet {
         String contextPath = request.getContextPath();
         String param = "?success=" + java.net.URLEncoder.encode(msg, "UTF-8");
         if ("ALUMNO".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_alumno.jsp" + param);
+            response.sendRedirect(contextPath + "/DashboardAlumnoServlet" + param);
         } else if ("DOCENTE".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_docente.jsp" + param);
+            response.sendRedirect(contextPath + "/DashboardDocenteServlet" + param);
         } else {
-            response.sendRedirect(contextPath + "/admin_panel.jsp" + param);
+            response.sendRedirect(contextPath + "/AdminDashboardServlet" + param);
         }
     }
 
@@ -69,11 +80,11 @@ public class ActualizarContactoServlet extends HttpServlet {
         String contextPath = request.getContextPath();
         String param = "?error=" + java.net.URLEncoder.encode(msg, "UTF-8");
         if ("ALUMNO".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_alumno.jsp" + param);
+            response.sendRedirect(contextPath + "/DashboardAlumnoServlet" + param);
         } else if ("DOCENTE".equals(rol)) {
-            response.sendRedirect(contextPath + "/dashboard_docente.jsp" + param);
+            response.sendRedirect(contextPath + "/DashboardDocenteServlet" + param);
         } else {
-            response.sendRedirect(contextPath + "/admin_panel.jsp" + param);
+            response.sendRedirect(contextPath + "/AdminDashboardServlet" + param);
         }
     }
 }
