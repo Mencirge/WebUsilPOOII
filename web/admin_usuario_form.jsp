@@ -128,7 +128,7 @@
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="${pageContext.request.contextPath}/${configuracion.logoUrl}" alt="Logo" class="sidebar-brand-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
+                <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo" class="sidebar-brand-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
                 <h5 class="fw-bold text-white mb-1 m-0" style="font-size: 1.1rem;">${configuracion.nombreInstitucion}</h5>
                 <div class="sidebar-user-fullname">Administrador</div>
                 <div class="sidebar-user-role">Soporte Técnico / USIL</div>

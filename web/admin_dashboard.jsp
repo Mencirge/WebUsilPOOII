@@ -123,7 +123,7 @@
         <!-- Sidebar -->
         <nav class="sidebar">
             <div class="sidebar-header">
-                <img src="${pageContext.request.contextPath}/${configuracion.logoUrl}" alt="Logo" class="sidebar-brand-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
+                <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo" class="sidebar-brand-img" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
                 <h5 class="fw-bold text-white mb-1 m-0" style="font-size: 1.1rem;">${configuracion.nombreInstitucion}</h5>
                 <div class="sidebar-user-fullname">Administrador</div>
                 <div class="sidebar-user-role">Soporte Técnico / USIL</div>
@@ -180,7 +180,6 @@
                             <h1 class="h2 fw-bold text-dark m-0">Panel Administrativo de Seguridad</h1>
                             <p class="text-muted m-0">Bienvenido al centro de control del sistema académico</p>
                         </div>
-                        <span class="badge bg-secondary p-2">Marca Blanca: Activa</span>
                     </div>
 
                     <!-- Métricas en Tarjetas (Bootstrap 5 Cards) -->
@@ -328,7 +327,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    -- MODAL INTERACTIVO DE CAMBIO DE CONTRASEÑA
+    <!-- MODAL INTERACTIVO DE CAMBIO DE CONTRASEÑA -->
     <!-- ========================================================================= -->
     <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">

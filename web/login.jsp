@@ -143,8 +143,8 @@
             <img src="${pageContext.request.contextPath}/imagenes/usil_logo.png" alt="Logo USIL" onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/e/ec/USIL_logo.png';">
         </div>
         
-        <h2>Sistema Académico</h2>
-        <p class="desc">Ingrese su código y contraseña para continuar</p>
+        <h2>Universidad San Ignacio de Loyola</h2>
+        <p class="desc">Iniciar sesión</p>
 
         <!-- Mensajes de Error de JSP -->
         <% if (request.getParameter("error") != null) { %>
@@ -168,8 +168,8 @@
         <!-- Formulario -->
         <form action="${pageContext.request.contextPath}/LoginServlet" method="POST" id="login-form">
             <div class="form-group">
-                <label for="codigo_o_correo">Código de Usuario o Correo:</label>
-                <input type="text" id="codigo_o_correo" name="codigo_o_correo" placeholder="ej: alumno@usil.edu.pe" required>
+                <label for="codigo_o_correo">Correo institucional</label>
+                <input type="text" id="codigo_o_correo" name="codigo_o_correo" placeholder="usuario@usil.pe" required>
             </div>
             
             <div class="form-group">
