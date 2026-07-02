@@ -357,7 +357,7 @@
     </div>
 
     <!-- ========================================================================= -->
-    -- MODAL INTERACTIVO DE CAMBIO DE CONTRASEÑA
+    <!-- MODAL INTERACTIVO DE CAMBIO DE CONTRASEÑA -->
     <!-- ========================================================================= -->
     <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-labelledby="changePasswordModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
