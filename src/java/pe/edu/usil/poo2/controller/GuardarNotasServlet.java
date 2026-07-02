@@ -114,7 +114,7 @@ public class GuardarNotasServlet extends HttpServlet {
 
             if (todosExitosos) {
                 // Redirige de vuelta al dashboard del docente indicando éxito
-                response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?success=true");
+                response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?success=Calificaciones+guardadas+exitosamente");
             } else {
                 response.sendRedirect(request.getContextPath() + "/DashboardDocenteServlet?error=Error+al+guardar+algunas+notas");
             }
